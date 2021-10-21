@@ -1,4 +1,4 @@
-# Xeta Python Client
+# Official Python Client for Xeta
 
 Official Python client to interact with Xeta Blockchain and Xeta Blockchain Interface.
 
