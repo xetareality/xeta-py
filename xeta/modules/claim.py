@@ -1,72 +1,151 @@
-from xeta.library import models
-from xeta.config import config
-import requests
+from xeta.modules import transaction
+from xeta.library import models, utils
+from xeta.library.config import config
+import json
+import time
 
 
-def get(address, token, owner):
+def create(owner, token, tokenAmount, xetaAmount=None, expires=None, unlocks=None, frozen=None, category=None, meta=None, answer=None, number=None, raw=False):
     """
-    Get claim by address, token and owner
+    Create claim
     """
-    r = requests.request(
+    instruction = utils.strip({
+        'function': 'claim.create',
+        'owner': owner,
+        'token': token,
+        'tokenAmount': tokenAmount,
+        'xetaAmount': xetaAmount,
+        'expires': expires,
+        'unlocks': unlocks,
+        'frozen': frozen,
+        'category': category,
+        'meta': meta,
+        'answer': answer,
+        'number': number,
+    })
+
+    if raw: return instruction
+    return transaction.create({'instructions': [instruction]})
+
+def update(tokenAmount=None, xetaAmount=None, expires=None, unlocks=None, frozen=None, category=None, meta=None, answer=None, number=None, raw=False):
+    """
+    Update claim
+    """
+    instruction = utils.strip({
+        'function': 'claim.update',
+        'tokenAmount': tokenAmount,
+        'xetaAmount': xetaAmount,
+        'expires': expires,
+        'unlocks': unlocks,
+        'frozen': frozen,
+        'category': category,
+        'meta': meta,
+        'answer': answer,
+        'number': number,
+    })
+
+    if raw: return instruction
+    return transaction.create({'instructions': [instruction]})
+
+def transfer(claim, raw=False):
+    """
+    Transfer claim
+    """
+    instruction = utils.strip({
+        'function': 'claim.transfer',
+        'claim': claim,
+        'to': to,
+    })
+
+    if raw: return instruction
+    return transaction.create({'instructions': [instruction]})
+
+def resolve(claim, raw=False):
+    """
+    Resolve claim
+    """
+    instruction = utils.strip({
+        'function': 'claim.resolve',
+        'claim': claim,
+    })
+
+    if raw: return instruction
+    return transaction.create({'instructions': [instruction]})
+
+
+def scanByClaim(creator, owner, token, address=None, created=None, sort='DESC', limit=25):
+    """
+    Scan tokens by claim
+    """
+    results = utils.request(
         method='GET',
-        url=config['interface']+'/claim',
-        params={'address': address, 'token': token, 'owner': owner})
+        url=config['interface']+'/tokens',
+        params=utils.strip({'creator': creator, 'owner': owner, 'token': token, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
 
-    if r.status_code == 400: raise Exception(r.text)
-    elif not r.text: return
+    return [models.parse_values(r, models.TOKEN) for r in results]
 
-    try: result = r.json()
-    except: raise Exception('request: invalid request')
-
-    return models.parse_values(result, models.CLAIM)
-
-def getByHash(hash):
+def scanByHolder(holder, address=None, created=None, sort='DESC', limit=25):
     """
-    Get claim by hash
+    Scan tokens by holder
     """
-    r = requests.request(
+    results = utils.request(
         method='GET',
-        url=config['interface']+'/claim',
-        params={'hash': hash})
+        url=config['interface']+'/tokens',
+        params=utils.strip({'holder': holder, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
 
-    if r.status_code == 400: raise Exception(r.text)
-    elif not r.text: return
+    return [models.parse_values(r, models.TOKEN) for r in results]
 
-    try: result = r.json()
-    except: raise Exception('request: invalid request')
-
-    return models.parse_values(result, models.CLAIM)
-
-def scanByAmount(owner, hash=None, amount=None, sort='DESC', limit=25):
+def scanByIssuer(cluster, address=None, created=None, sort='DESC', limit=25):
     """
-    Scan claims by amount
+    Scan tokens by issuer
     """
-    r = requests.request(
+    results = utils.request(
         method='GET',
-        url=config['interface']+'/claims',
-        params={'owner': owner, 'hash': hash, 'amount': amount if amount else 1, 'sort': sort, 'limit': limit})
+        url=config['interface']+'/tokens',
+        params=utils.strip({'issuer': issuer, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
 
-    if r.status_code == 400: raise Exception(r.text)
-    elif not r.text: return
+    return [models.parse_values(r, models.TOKEN) for r in results]
 
-    try: results = r.json()
-    except: raise Exception('request: invalid request')
-
-    return [models.parse_values(r, models.CLAIM) for r in results]
-
-def scanByCreated(owner, hash=None, created=None, sort='DESC', limit=25):
+def scanByIssuerAmount(issuer, address=None, amount=None, sort='DESC', limit=25):
     """
-    Scan claims by created
+    Scan tokens by issuer sorted by amount
     """
-    r = requests.request(
+    results = utils.request(
         method='GET',
-        url=config['interface']+'/claims',
-        params={'owner': owner, 'hash': hash, 'created': created if created else 1, 'sort': sort, 'limit': limit})
+        url=config['interface']+'/tokens',
+        params=utils.strip({'issuer': issuer, 'address': address, 'amount': amount, 'sort': sort, 'limit': limit}))
 
-    if r.status_code == 400: raise Exception(r.text)
-    elif not r.text: return
+    return [models.parse_values(r, models.TOKEN) for r in results]
 
-    try: results = r.json()
-    except: raise Exception('request: invalid request')
+def scanByIssuerRandom(issuer, address=None, random=None, sort='DESC', limit=25):
+    """
+    Scan tokens by issuer sorted by random
+    """
+    results = utils.request(
+        method='GET',
+        url=config['interface']+'/tokens',
+        params=utils.strip({'issuer': issuer, 'address': address, 'random': random, 'sort': sort, 'limit': limit}))
 
-    return [models.parse_values(r, models.CLAIM) for r in results]
+    return [models.parse_values(r, models.TOKEN) for r in results]
+
+def scanByIssuerAnswer(issuer, address=None, answer=None, sort='DESC', limit=25):
+    """
+    Scan tokens by issuer and answer
+    """
+    results = utils.request(
+        method='GET',
+        url=config['interface']+'/tokens',
+        params=utils.strip({'issuer': issuer, 'address': address, 'answer': answer, 'sort': sort, 'limit': limit}))
+
+    return [models.parse_values(r, models.TOKEN) for r in results]
+
+def scanByIssuerNumber(issuer, address=None, number=None, sort='DESC', limit=25):
+    """
+    Scan tokens by issuer and number
+    """
+    results = utils.request(
+        method='GET',
+        url=config['interface']+'/tokens',
+        params=utils.strip({'issuer': issuer, 'address': address, 'number': number, 'sort': sort, 'limit': limit}))
+
+    return [models.parse_values(r, models.TOKEN) for r in results]

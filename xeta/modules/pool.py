@@ -1,105 +1,109 @@
-from xeta.programs import auction, launch, lock, loot, lottery, royalty, stake, swap, vote
+from xeta.programs import auction, launch, lending, lock, loot, lottery, royalty, staking, swap, vote
 from xeta.modules import transaction
-from xeta.library import models
-from xeta.config import config
-import requests
+from xeta.library import models, utils
+from xeta.library.config import config
 import json
 import time
 
 
-def create(pool, tx):
+def create(token, program, name=None, mechanism=None, candidates=None, rate=None, percentage=None, probability=None, expires=None, answers=None, meta=None, minAmount=None, maxAmount=None, minTime=None, maxTime=None, transfersLimit=None, claimsLimit=None, tokenLimit=None, xetaLimit=None, tokenTarget=None, xetaTarget=None, raw=False):
     """
     Create pool
     """
-    models.required_fields(tx, ['token'])
-    models.required_fields(pool, ['program'])
-    models.exclusive_fields(pool, ['program', 'name', 'mechanism', 'candidates', 'rate', 'percentage', 'probability', 'expires', 'answers', 'minAmount', 'maxAmount', 'minTime', 'maxTime', 'transfersLimit', 'claimsLimit', 'tokenLimit', 'xetaLimit', 'tokenTarget', 'xetaTarget'])
-    models.valid_formats(pool, models.POOL)
+    assert program in ['auction', 'launch', 'lending', 'lock', 'loot', 'lottery', 'royalty', 'staking', 'vote'], 'validation: invalid program'
 
-    assert pool['program'] in ['auction', 'launch', 'lock', 'loot', 'lottery', 'royalty', 'stake', 'vote'], 'validation: invalid program'
-
-    result = transaction.create({**transaction.template(), **tx, **{
-        'token': tx['token'],
+    instruction = utils.strip({
         'function': 'pool.create',
-        'message': json.dumps(pool)
-    }})
+        'token': token,
+        'program': program,
+        'name': name,
+        'mechanism': mechanism,
+        'candidates': candidates,
+        'rate': rate,
+        'percentage': percentage,
+        'probability': probability,
+        'expires': expires,
+        'answers': answers,
+        'meta': meta,
+        'minAmount': minAmount,
+        'maxAmount': maxAmount,
+        'minTime': minTime,
+        'maxTime': maxTime,
+        'transfersLimit': transfersLimit,
+        'claimsLimit': claimsLimit,
+        'tokenLimit': tokenLimit,
+        'xetaLimit': xetaLimit,
+        'tokenTarget': tokenTarget,
+        'xetaTarget': xetaTarget,
+    })
 
-    try:
-        pool = models.parse_values(result['data'], models.POOL)
-        instance = getattr(globals()[pool['program']], pool['program'].capitalize())
-        result['data'] = instance(pool)
-    except: pass
+    if raw: return instruction
+    return transaction.create({'instructions': [instruction]})
 
-    return models.parse_values(result, models.TRANSACTION)
+def get(address, extended=None):
+    """
+    Get pool by address
+    """
+    return models.parse_values(utils.request(
+        method='GET',
+        url=config['interface']+'/pool',
+        params=utils.strip({'address': address, 'extended': extended})
+    ), models.POOL)
 
-def get(address):
+def batchGet(addresses, extended=None):
+    """
+    Batch get pools by addresses
+    """
+    results = utils.request(
+        method='GET',
+        url=config['interface']+'/pools',
+        params=utils.strip({'addresses': ','.join(addresses), 'extended': extended}))
+
+    return [models.parse_values(r, models.POOL) for r in results]
+
+def instance(address, extended=None):
     """
     Get pool by address
     Return as program instance
     """
-    r = requests.request(
+    result = utils.request(
         method='GET',
         url=config['interface']+'/pool',
-        params={'address': address})
-
-    if r.status_code == 400: raise Exception(r.text)
-    elif not r.text: return
-
-    try: result = r.json()
-    except: raise Exception('request: invalid request')
+        params=utils.strip({'address': address, 'extended': extended}))
 
     pool = models.parse_values(result, models.POOL)
     instance = getattr(globals()[pool['program']], pool['program'].capitalize())
-
     return instance(pool)
 
-def scanByToken(token, address=None, program=None, sort='DESC', limit=25):
+def scanByToken(token, address=None, program=None, sort='DESC', limit=25, extended=None):
     """
     Scan pools by token
     """
-    r = requests.request(
+    results = utils.request(
         method='GET',
         url=config['interface']+'/pools',
-        params={'token': token, 'address': address, 'program': program, 'sort': sort, 'limit': limit})
-
-    if r.status_code == 400: raise Exception(r.text)
-    elif not r.text: return
-
-    try: results = r.json()
-    except: raise Exception('request: invalid request')
+        params=utils.strip({'token': token, 'address': address, 'program': program, 'sort': sort, 'limit': limit, 'extended': extended}))
 
     return [models.parse_values(r, models.POOL) for r in results]
 
-def scanByCreator(creator, address=None, program=None, sort='DESC', limit=25):
+def scanByCreator(creator, address=None, program=None, sort='DESC', limit=25, extended=None):
     """
     Scan pools by creator
     """
-    r = requests.request(
+    results = utils.request(
         method='GET',
         url=config['interface']+'/pools',
-        params={'creator': creator, 'address': address, 'program': program, 'sort': sort, 'limit': limit})
-
-    if r.status_code == 400: raise Exception(r.text)
-    elif not r.text: return
-
-    try: results = r.json()
-    except: raise Exception('request: invalid request')
+        params=utils.strip({'creator': creator, 'address': address, 'program': program, 'sort': sort, 'limit': limit, 'extended': extended}))
 
     return [models.parse_values(r, models.POOL) for r in results]
 
-def scanByName(name, address=None, program=None, sort='DESC', limit=25):
+def scanByName(name, address=None, program=None, sort='DESC', limit=25, extended=None):
     """
     Scan pools by name
     """
-    r = requests.request(
+    results = utils.request(
         method='GET',
         url=config['interface']+'/pools',
-        params={'name': name, 'address': address, 'program': program, 'sort': sort, 'limit': limit})
-
-    if r.status_code == 400: raise Exception(r.text)
-    elif not r.text: return
-
-    try: results = r.json()
-    except: raise Exception('request: invalid request')
+        params=utils.strip({'name': name, 'address': address, 'program': program, 'sort': sort, 'limit': limit, 'extended': extended}))
 
     return [models.parse_values(r, models.POOL) for r in results]

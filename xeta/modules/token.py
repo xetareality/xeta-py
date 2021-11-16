@@ -5,92 +5,96 @@ import json
 import time
 
 
-def create(name, ticker=None, supply=None, reserve=None, description=None, links=None, meta=None, icon=None, owner=None, category=None, object=None, mime=None, token=None, tokenAmount=None, xetaAmount=None, expires=None, unlocks=None, answer=None, number=None, tx={}):
+def create(name, symbol=None, supply=None, reserve=None, description=None, links=None, meta=None, icon=None, owner=None, frozen=None, category=None, object=None, mime=None, raw=False):
     """
     Create token
     """
-    assert not supply or (supply and ticker), 'validation: fungible tokens require a ticker'
-
-    return transaction.create({**tx, **{
+    instruction = utils.strip({
         'function': 'token.create',
-        'message': json.dumps(utils.strip({
-            'name': name,
-            'ticker': ticker,
-            'supply': supply,
-            'reserve': reserve,
-            'description': description,
-            'links': links,
-            'meta': meta,
-            'icon': icon,
-            'owner': owner,
-            'category': category,
-            'object': object,
-            'mime': mime,
-            'token': token,
-            'tokenAmount': tokenAmount,
-            'xetaAmount': xetaAmount,
-            'expires': expires,
-            'unlocks': unlocks,
-            'answer': answer,
-            'number': number,
-        }))
-    }})
+        'name': name,
+        'symbol': symbol,
+        'supply': supply,
+        'reserve': reserve,
+        'description': description,
+        'links': links,
+        'meta': meta,
+        'icon': icon,
+        'owner': owner,
+        'frozen': frozen,
+        'category': category,
+        'object': object,
+        'mime': mime,
+    })
 
-def update(token, description=None, links=None, meta=None, icon=None, category=None, frozen=None, tx={}):
+    if supply:
+        models.required_fields(instruction, ['name', 'symbol', 'supply'])
+        models.exclusive_fields(instruction, ['function', 'name', 'description', 'links', 'meta', 'icon', 'symbol', 'supply', 'reserve'])
+    else:
+        Fields.required_fields(instruction, ['name'])
+        Fields.exclusive_fields(instruction, ['function', 'name', 'description', 'links', 'meta', 'icon', 'owner', 'frozen', 'category', 'object', 'mime'])
+
+    if raw: return instruction
+    return transaction.create({'instructions': [instruction]})
+
+def update(token, name=None, description=None, links=None, meta=None, icon=None, frozen=None, category=None, object=None, mime=None, raw=False):
     """
     Update specified values of an token
     """
-    return transaction.create({**tx, **{
-        'token': token,
+    instruction = utils.strip({
         'function': 'token.update',
-        'message': json.dumps(utils.strip({
-            'description': description,
-            'links': links,
-            'meta': meta,
-            'icon': icon,
-            'category': category,
-            'frozen': frozen,
-        }))
-    }})
+        'name': name,
+        'description': description,
+        'links': links,
+        'meta': meta,
+        'icon': icon,
+        'frozen': frozen,
+        'category': category,
+        'object': object,
+        'mime': mime,
+    })
 
-def mint(token, amount, tx={}):
+    if raw: return instruction
+    return transaction.create({'instructions': [instruction]})
+
+def mint(token, amount, raw=False):
     """
     Mint from reserve
     """
-    return transaction.create({**tx, **{
-        'token': token,
+    instruction = utils.strip({
         'function': 'token.mint',
-        'message': json.dumps({'amount': amount})
-    }})
+        'token': token,
+        'amount': utils.amount(amount),
+    })
 
-def transfer(from_address, to, token, amount, tx={}):
+    if raw: return instruction
+    return transaction.create({'instructions': [instruction]})
+
+def transfer(token, to, raw=False):
     """
     Transfer from token
     """
-    return transaction.create({**tx, **{
-        'from': from_address,
-        'to': to,
-        'token': token,
-        'amount': amount,
+    instruction = utils.strip({
         'function': 'token.transfer',
-    }})
+        'token': token,
+        'to': to,
+    })
 
-def batch(tokens, tx={}):
+    if raw: return instruction
+    return transaction.create({'instructions': [instruction]})
+
+def withdraw(token, to, amount, raw=False):
     """
-    Batch create NFTs
-    Fungible tokens cannot be created in batch due to swap pool creation
+    Withdraw tokens that token holds
     """
-    assert len(tokens) <= 20, 'input: batch exceeds maximum items'
+    instruction = utils.strip({
+        'function': 'token.withdraw',
+        'token': token,
+        'to': to,
+        'amount': utils.amount(amount),
+    })
 
-    for t in tokens:
-        models.required_fields(t, ['name'])
-        models.exclusive_fields(t, ['name', 'description', 'links', 'meta', 'icon', 'owner', 'category', 'object', 'mime', 'token', 'tokenAmount', 'xetaAmount', 'expires', 'unlocks', 'answer', 'number'])
-        models.valid_formats(t, models.TOKEN)
-
-    return transaction.create({**{
-        'function': 'token.batch',
-        'message': json.dumps(tokens)
-    }})
+    if raw: return instruction
+    return transaction.create({'instructions': [instruction]})
 
 def get(address):
     """
@@ -124,14 +128,14 @@ def scanByCreator(creator, address=None, created=None, sort='DESC', limit=25):
 
     return [models.parse_values(r, models.TOKEN) for r in results]
 
-def scanByTicker(ticker, address=None, created=None, sort='DESC', limit=25):
+def scanBysymbol(symbol, address=None, created=None, sort='DESC', limit=25):
     """
-    Scan tokens by ticker
+    Scan tokens by symbol
     """
     results = utils.request(
         method='GET',
         url=config['interface']+'/tokens',
-        params=utils.strip({'ticker': ticker, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
+        params=utils.strip({'symbol': symbol, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
 
     return [models.parse_values(r, models.TOKEN) for r in results]
 
@@ -176,115 +180,5 @@ def scanByCreatorCategory(creator, category=None, address=None, created=None, so
         method='GET',
         url=config['interface']+'/tokens',
         params=utils.strip({'creator': creator, 'category': category, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByHash(hash, address=None, created=None, sort='DESC', limit=25):
-    """
-    Scan tokens by hash
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'hash': hash, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByFingerprint(fingerprint, address=None, created=None, sort='DESC', limit=25):
-    """
-    Scan tokens by fingerprint
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'fingerprint': fingerprint, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByCluster(cluster, address=None, created=None, sort='DESC', limit=25):
-    """
-    Scan tokens by cluster
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'cluster': cluster, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByClaim(creator, owner, token, address=None, created=None, sort='DESC', limit=25):
-    """
-    Scan tokens by claim
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'creator': creator, 'owner': owner, 'token': token, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByHolder(holder, address=None, created=None, sort='DESC', limit=25):
-    """
-    Scan tokens by holder
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'holder': holder, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByIssuer(cluster, address=None, created=None, sort='DESC', limit=25):
-    """
-    Scan tokens by issuer
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'issuer': issuer, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByIssuerAmount(issuer, address=None, amount=None, sort='DESC', limit=25):
-    """
-    Scan tokens by issuer sorted by amount
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'issuer': issuer, 'address': address, 'amount': amount, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByIssuerRandom(issuer, address=None, random=None, sort='DESC', limit=25):
-    """
-    Scan tokens by issuer sorted by random
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'issuer': issuer, 'address': address, 'random': random, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByIssuerAnswer(issuer, address=None, answer=None, sort='DESC', limit=25):
-    """
-    Scan tokens by issuer and answer
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'issuer': issuer, 'address': address, 'answer': answer, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByIssuerNumber(issuer, address=None, number=None, sort='DESC', limit=25):
-    """
-    Scan tokens by issuer and number
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'issuer': issuer, 'address': address, 'number': number, 'sort': sort, 'limit': limit}))
 
     return [models.parse_values(r, models.TOKEN) for r in results]
