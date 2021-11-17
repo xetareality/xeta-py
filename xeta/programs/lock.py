@@ -1,16 +1,16 @@
-from xeta.modules import transaction, pool
-from xeta.config import config
-from xeta.library import models
+from xeta.modules import instruction, pool
+from xeta.library.config import config
+from xeta.library import models, utils
 import json
 
 
-def create(values):
+def create(**values):
     """
     Create lock pool
     """
     models.required_fields(values, ['token'])
     models.valid_formats(values, models.POOL)
-    return pool.create({**values, **{'program': 'lock'}})
+    return pool.create(**{**values, **{'program': 'lock'}})
 
 class Lock():
     """
@@ -22,26 +22,25 @@ class Lock():
         """
         self.pool = pool
 
-    def transfer(self, tx, expires=None, unlocks=None, address=None):
+    def transfer(self, amount, unlocks=None, expires=None, address=None, submit=True):
         """
         Transfer to lock pool
         """
-        models.required_fields(tx, ['amount'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': self.pool['token'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'lock.transfer',
-            'message': json.dumps({'expires': expires, 'unlocks': unlocks, 'address': address}) if expires or unlocks or address else None,
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+            'unlocks': unlocks,
+            'expires': expires,
+            'address': address,
+        })
 
-    def claim(self):
+    def claim(self, claim, submit=True):
         """
         Claim from lock pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'lock.claim',
-        }})
+            'pool': self.pool['address'],
+            'claim': claim,
+        })

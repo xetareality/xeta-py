@@ -1,4 +1,4 @@
-from xeta.modules import transaction, pool
+from xeta.modules import instruction, pool
 from xeta.library.config import config
 from xeta.library import models, utils
 import json
@@ -12,9 +12,9 @@ def create(**values):
     models.valid_formats(values, models.POOL)
     return pool.create(**{**values, **{'program': 'lending'}})
 
-class Lock():
+class Lending():
     """
-    Lock pool class
+    Lending pool class
     """
     def __init__(self, pool):
         """
@@ -22,51 +22,54 @@ class Lock():
         """
         self.pool = pool
 
-    def transfer(self, tx={}):
+    def transfer(self, amount, collateralization=2.5, submit=True):
         """
         Transfer to lending pool
         """
-        return transaction.create({**tx, **{
-            'to': self.pool['address'],
-            'token': self.pool['token'],
-            'amount': amount,
+        return instruction.wrap({
             'function': 'lending.transfer',
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+            'collateralization': collateralization,
+        })
 
-    def claim(self, tx={}):
+    def settle(self, claim, amount, submit=True):
         """
-        Claim from lending pool
+        Settle claim from lending pool
         """
-        return transaction.create({**tx, **{
-            'to': self.pool['address'],
-            'function': 'lending.claim',
-        }})
+        return instruction.wrap({
+            'function': 'lending.settle',
+            'pool': self.pool['address'],
+            'claim': claim,
+            'amount': utils.amount(amount),
+        })
 
-    def resolve(self, tx={}):
+    def liquidate(self, claim, submit=True):
         """
-        Resolve lending pool
+        Liquidate claim from lending pool
         """
-        return transaction.create({**tx, **{
-            'to': self.pool['address'],
-            'function': 'lending.resolve',
-        }})
+        return instruction.wrap({
+            'function': 'lending.liquidate',
+            'pool': self.pool['address'],
+            'claim': claim,
+        })
 
-    def deposit(self, amount, tx={}):
+    def deposit(self, amount, submit=True):
         """
         Deposit to lending pool
         """
-        return transaction.create({**tx, **{
-            'to': self.pool['address'],
-            'token': self.pool['token'],
-            'amount': amount,
+        return instruction.wrap({
             'function': 'lending.deposit',
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+        })
 
-    def withdraw(self, tx={}):
+    def withdraw(self, claim, submit=True):
         """
         Withdraw from lending pool
         """
-        return transaction.create({**tx, **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'lending.withdraw',
-        }})
+            'pool': self.pool['address'],
+            'claim': claim,
+        })

@@ -1,15 +1,15 @@
-from xeta.modules import transaction, pool
-from xeta.config import config
-from xeta.library import models
+from xeta.modules import instruction, pool
+from xeta.library.config import config
+from xeta.library import models, utils
 
 
-def create(values):
+def create(**values):
     """
     Create launch pool
     """
     models.required_fields(values, ['token', 'expires'])
     models.valid_formats(values, models.POOL)
-    return pool.create({**values, **{'program': 'launch'}})
+    return pool.create(**{**values, **{'program': 'launch'}})
 
 class Launch():
     """
@@ -21,80 +21,70 @@ class Launch():
         """
         self.pool = pool
 
-    def transfer(self, tx):
+    def transfer(self, amount, submit=True):
         """
         Transfer to launch pool
         """
-        models.required_fields(tx, ['amount'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': config['xeta_address'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'launch.transfer',
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+        })
 
-    def swap(self, tx):
+    def swap(self, amount, submit=True):
         """
         Swap via launch pool
         """
-        models.required_fields(tx, ['amount'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': config['xeta_address'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'launch.swap',
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+        })
 
-    def resolve(self):
+    def resolve(self, submit=True):
         """
         Resolve launch pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'launch.resolve',
-        }})
+            'pool': self.pool['address'],
+        })
 
-    def claim(self):
+    def claim(self, claim, submit=True):
         """
         Claim from launch pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'launch.claim',
-        }})
+            'pool': self.pool['address'],
+            'claim': claim,
+        })
 
-    def deposit(self, tx):
+    def deposit(self, amount, submit=True):
         """
         Deposit to launch pool
         """
-        models.required_fields(tx, ['amount'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': self.pool['token'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'launch.deposit',
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+        })
 
-    def withdraw(self):
+    def withdraw(self, claim, submit=True):
         """
         Withdraw from launch pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'launch.withdraw',
-        }})
+            'pool': self.pool['address'],
+            'claim': claim,
+        })
 
-    def close(self):
+    def close(self, submit=True):
         """
         Close launch pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'launch.close',
-        }})
+            'pool': self.pool['address'],
+        })

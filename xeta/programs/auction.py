@@ -1,15 +1,15 @@
-from xeta.modules import transaction, pool
-from xeta.config import config
-from xeta.library import models
+from xeta.modules import instruction, pool
+from xeta.library.config import config
+from xeta.library import models, utils
 
 
-def create(values):
+def create(**values):
     """
     Create auction pool
     """
     models.required_fields(values, ['token', 'expires'])
     models.valid_formats(values, models.POOL)
-    return pool.create({**values, **{'program': 'auction'}})
+    return pool.create(**{**values, **{'program': 'auction'}})
 
 class Auction():
     """
@@ -21,63 +21,55 @@ class Auction():
         """
         self.pool = pool
 
-    def transfer(self, tx):
+    def transfer(self, amount, submit=True):
         """
         Transfer to auction pool
         """
-        models.required_fields(tx, ['amount'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': config['xeta_address'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'auction.transfer',
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+        })
 
-    def deposit(self, tx):
+    def deposit(self, amount, submit=True):
         """
         Deposit to auction pool
         """
-        models.required_fields(tx, ['amount'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': self.pool['token'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'auction.deposit',
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+            'amount': utils.amount(amount),
+        })
 
-    def resolve(self):
+    def resolve(self, submit=True):
         """
         Resolve auction pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
-            'token': config['xeta_address'],
-            'amount': 0,
+        return instruction.wrap({
             'function': 'auction.resolve',
-        }})
+            'pool': self.pool['address'],
+        })
 
-    def cancel(self):
+    def cancel(self, submit=True):
         """
         Cancel auction pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
-            'token': config['xeta_address'],
-            'amount': 0,
+        return instruction.wrap({
             'function': 'auction.cancel',
-        }})
+            'pool': self.pool['address'],
+        })
 
-    def close(self):
+    def close(self, submit=True):
         """
         Close auction pool
         """
-        return transaction.create({**transaction.template(), **{
+        return transaction.create({**tx, **{
             'to': self.pool['address'],
-            'token': config['xeta_address'],
-            'amount': 0,
             'function': 'auction.close',
         }})
+
+        return instruction.wrap({
+            'function': 'auction.transfer',
+            'pool': self.pool['address'],
+        })
