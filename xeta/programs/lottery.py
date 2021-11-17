@@ -1,15 +1,15 @@
-from xeta.modules import transaction, pool
-from xeta.config import config
-from xeta.library import models
+from xeta.modules import instruction, pool
+from xeta.library.config import config
+from xeta.library import models, utils
 
 
-def create(values):
+def create(**values):
     """
     Create lottery pool
     """
     models.required_fields(values, ['token', 'expires'])
     models.valid_formats(values, models.POOL)
-    return pool.create({**values, **{'program': 'lottery'}})
+    return pool.create(**{**values, **{'program': 'lottery'}})
 
 class Lottery():
     """
@@ -21,66 +21,60 @@ class Lottery():
         """
         self.pool = pool
 
-    def transfer(self, tx):
+    def transfer(self, amount, submit=True):
         """
         Transfer to lottery pool
         """
-        models.required_fields(tx, ['amount'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': config['xeta_address'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'lottery.transfer',
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+        })
 
-    def claim(self):
+    def claim(self, claim, submit=True):
         """
         Claim from lottery pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'lottery.claim',
-        }})
+            'pool': self.pool['address'],
+            'claim': claim,
+        })
 
-    def deposit(self, tx):
+    def deposit(self, amount, submit=True):
         """
         Deposit to lottery pool
         """
-        models.required_fields(tx, ['amount'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': self.pool['token'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'lottery.deposit',
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+        })
 
-    def withdraw(self):
+    def withdraw(self, claim, submit=True):
         """
         Withdraw from lottery pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'lottery.withdraw',
-        }})
+            'pool': self.pool['address'],
+            'claim': claim,
+        })
 
-    def close(self):
+    def close(self, submit=True):
         """
         Close lottery pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'lottery.close',
-        }})
+            'pool': self.pool['address'],
+        })
 
-    def clear(self):
+    def clear(self, submit=True):
         """
         Clear lottery pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'lottery.clear',
-        }})
+            'pool': self.pool['address'],
+        })

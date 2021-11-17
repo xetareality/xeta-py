@@ -1,16 +1,16 @@
-from xeta.modules import transaction, pool
-from xeta.config import config
-from xeta.library import models
+from xeta.modules import instruction, pool
+from xeta.library.config import config
+from xeta.library import models, utils
 import json
 
 
-def create(values):
+def create(**values):
     """
     Create royalty pool
     """
     models.required_fields(values, ['token'])
     models.valid_formats(values, models.POOL)
-    return pool.create({**values, **{'program': 'royalty'}})
+    return pool.create(**{**values, **{'program': 'royalty'}})
 
 class Royalty():
     """
@@ -22,53 +22,43 @@ class Royalty():
         """
         self.pool = pool
 
-    def transfer(self):
+    def transfer(self, token, submit=True):
         """
         Transfer to royalty pool
         """
-        return self.claim()
+        return instruction.wrap({
+            'function': 'royalty.transfer',
+            'pool': self.pool['address'],
+            'token': token,
+        })
 
-    def claim(self, tx):
-        """
-        Claim from royalty pool
-        """
-        models.required_fields(tx, ['token'])
-
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
-            'token': tx['token'],
-            'function': 'royalty.claim',
-        }})
-
-    def deposit(self, tx, expires=None, unlocks=None):
+    def deposit(self, amount, unlocks=None, expires=None, submit=True):
         """
         Deposit to royalty pool
         """
-        models.required_fields(tx, ['amount'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': self.pool['token'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'royalty.deposit',
-            'message': json.dumps({'expires': expires, 'unlocks': unlocks}) if expires or unlocks else None,
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+            'unlocks': unlocks,
+            'expires': expires,
+        })
 
-    def withdraw(self):
+    def withdraw(self, claim, submit=True):
         """
         Withdraw from royalty pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'royalty.withdraw',
-        }})
+            'pool': self.pool['address'],
+            'claim': claim,
+        })
 
-    def close(self):
+    def close(self, submit=True):
         """
         Close royalty pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'royalty.close',
-        }})
+            'pool': self.pool['address'],
+        })

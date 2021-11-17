@@ -1,16 +1,16 @@
-from xeta.modules import transaction, pool
-from xeta.config import config
-from xeta.library import models
+from xeta.modules import instruction, pool
+from xeta.library.config import config
+from xeta.library import models, utils
 import json
 
 
-def create(values):
+def create(**values):
     """
     Create vote pool
     """
     models.required_fields(values, ['token'])
     models.valid_formats(values, models.POOL)
-    return pool.create({**values, **{'program': 'vote'}})
+    return pool.create(**{**values, **{'program': 'vote'}})
 
 class Vote():
     """
@@ -22,37 +22,35 @@ class Vote():
         """
         self.pool = pool
 
-    def transfer(self, tx, answer=None, number=None):
+    def transfer(self, amount=0, answer=None, number=None, submit=True):
         """
         Transfer to vote pool
         """
-        models.required_fields(tx, ['amount'])
-        models.valid_formats(tx, models.TRANSACTION)
-
         assert (self.pool.get('candidates') and answer) or (not self.pool.get('candidates') and number), 'validation: incorrect answer'
 
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': self.pool['token'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'vote.transfer',
-            'message': json.dumps({'answer': answer}) if answer else json.dumps({'number': number}),
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+            'answer': answer,
+            'number': number,
+        })
 
-    def claim(self):
+    def claim(self, claim, submit=True):
         """
         Claim from vote pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'vote.claim',
-        }})
+            'pool': self.pool['address'],
+            'claim': claim,
+        })
 
-    def resolve(self):
+    def resolve(self, submit=True):
         """
         Resolve vote pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'vote.resolve',
-        }})
+            'pool': self.pool['address'],
+        })

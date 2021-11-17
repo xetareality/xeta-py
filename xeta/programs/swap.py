@@ -1,6 +1,6 @@
-from xeta.modules import transaction, pool
-from xeta.config import config
-from xeta.library import models
+from xeta.modules import instruction, pool
+from xeta.library.config import config
+from xeta.library import models, utils
 import json
 
 
@@ -14,52 +14,39 @@ class Swap():
         """
         self.pool = pool
 
-    def transfer(self, tx):
+    def transfer(self, token, amount, submit=True):
         """
         Transfer to swap pool
         """
-        models.required_fields(tx, ['amount', 'token'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': tx['token'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'swap.transfer',
-        }})
+            'pool': self.pool['address'],
+            'token': token,
+            'amount': utils.amount(amount),
+        })
 
-    def deposit(self, tx, expires=None, unlocks=None):
+    def deposit(self, tokenAmount, xetaAmount, unlocks=None, expires=None, submit=True):
         """
         Deposit to swap pool
         """
-        models.required_fields(tx, ['amount', 'token'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': tx['token'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'swap.deposit',
-            'message': json.dumps({'expires': expires, 'unlocks': unlocks}) if expires or unlocks else None,
-        }})
+            'pool': self.pool['address'],
+            'tokenAmount': utils.amount(tokenAmount),
+            'xetaAmount': utils.amount(xetaAmount),
+            'unlocks': unlocks,
+            'expires': expires,
+        })
 
-    def supply(self):
-        """
-        Supply to swap pool
-        """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
-            'function': 'swap.supply',
-        }})
-
-    def withdraw(self, percentage=1.0):
+    def withdraw(self, claim, percentage=1, submit=True):
         """
         Withdraw from swap pool
         """
         assert percentage <= 1, 'input: percentage must between zero and one'
 
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'swap.withdraw',
-            'message': json.dumps({'percentage': percentage})
-        }})
+            'pool': self.pool['address'],
+            'claim': claim,
+            'percentage': percentage,
+        })

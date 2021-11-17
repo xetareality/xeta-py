@@ -1,15 +1,15 @@
-from xeta.modules import transaction, pool
-from xeta.config import config
-from xeta.library import models
+from xeta.modules import instruction, pool
+from xeta.library.config import config
+from xeta.library import models, utils
 
 
-def create(values):
+def create(**values):
     """
     Create loot pool
     """
     models.required_fields(values, ['token'])
     models.valid_formats(values, models.POOL)
-    return pool.create({**values, **{'program': 'loot'}})
+    return pool.create(**{**values, **{'program': 'loot'}})
 
 class Loot():
     """
@@ -21,54 +21,41 @@ class Loot():
         """
         self.pool = pool
 
-    def transfer(self, tx):
+    def transfer(self, amount, submit=True):
         """
         Transfer to loot pool
         """
-        models.required_fields(tx, ['amount'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': self.pool['token'],
-            'amount': tx['amount'],
+        return instruction.wrap({
             'function': 'loot.transfer',
-        }})
+            'pool': self.pool['address'],
+            'amount': utils.amount(amount),
+        })
 
-    def deposit(self, tx):
+    def deposit(self, token, submit=True):
         """
         Deposit nft to loot pool
         """
-        models.required_fields(tx, ['token'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        assert tx.get('amount') in [None, 1], 'validation: amount must be empty or one'
-
-        return transaction.create({**transaction.template(), **tx, **{
-            'to': self.pool['address'],
-            'token': tx['token'],
-            'amount': 1,
+        return instruction.wrap({
             'function': 'loot.deposit',
-        }})
+            'pool': self.pool['address'],
+            'token': token,
+        })
 
-    def withdraw(self, tx):
+    def withdraw(self, claim, submit=True):
         """
         Withdraw nft from loot pool
         """
-        models.required_fields(tx, ['token'])
-        models.valid_formats(tx, models.TRANSACTION)
-
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
-            'token': tx['token'],
+        return instruction.wrap({
             'function': 'loot.withdraw',
-        }})
+            'pool': self.pool['address'],
+            'claim': claim,
+        })
 
-    def clear(self):
+    def clear(self, submit=True):
         """
         Clear loot pool
         """
-        return transaction.create({**transaction.template(), **{
-            'to': self.pool['address'],
+        return instruction.wrap({
             'function': 'loot.clear',
-        }})
+            'pool': self.pool['address'],
+        })
