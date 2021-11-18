@@ -41,7 +41,7 @@ class Lottery():
             'claim': claim,
         })
 
-    def deposit(self, amount, submit=True):
+    def deposit(self, amount, unlocks=None, expires=None, submit=True):
         """
         Deposit to lottery pool
         """
@@ -49,6 +49,8 @@ class Lottery():
             'function': 'lottery.deposit',
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
+            'unlocks': unlocks,
+            'expires': expires,
         })
 
     def withdraw(self, claim, submit=True):

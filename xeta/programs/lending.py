@@ -29,11 +29,12 @@ class Lending():
         return instruction.wrap({
             'function': 'lending.transfer',
             'pool': self.pool['address'],
+            'token': self.pool['token'],
             'amount': utils.amount(amount),
             'collateralization': collateralization,
         })
 
-    def settle(self, claim, amount, submit=True):
+    def settle(self, claim, submit=True):
         """
         Settle claim from lending pool
         """
@@ -41,7 +42,6 @@ class Lending():
             'function': 'lending.settle',
             'pool': self.pool['address'],
             'claim': claim,
-            'amount': utils.amount(amount),
         })
 
     def liquidate(self, claim, submit=True):
@@ -51,10 +51,11 @@ class Lending():
         return instruction.wrap({
             'function': 'lending.liquidate',
             'pool': self.pool['address'],
+            'token': self.pool['token'],
             'claim': claim,
         })
 
-    def deposit(self, amount, submit=True):
+    def deposit(self, amount, unlocks=None, expires=None, submit=True):
         """
         Deposit to lending pool
         """
@@ -62,6 +63,8 @@ class Lending():
             'function': 'lending.deposit',
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
+            'unlocks': unlocks,
+            'expires': expires,
         })
 
     def withdraw(self, claim, submit=True):
@@ -71,5 +74,6 @@ class Lending():
         return instruction.wrap({
             'function': 'lending.withdraw',
             'pool': self.pool['address'],
+            'token': self.pool['token'],
             'claim': claim,
         })

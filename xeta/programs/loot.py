@@ -31,7 +31,7 @@ class Loot():
             'amount': utils.amount(amount),
         })
 
-    def deposit(self, token, submit=True):
+    def deposit(self, token, unlocks=None, expires=None, submit=True):
         """
         Deposit nft to loot pool
         """
@@ -39,6 +39,8 @@ class Loot():
             'function': 'loot.deposit',
             'pool': self.pool['address'],
             'token': token,
+            'unlocks': unlocks,
+            'expires': expires,
         })
 
     def withdraw(self, claim, submit=True):

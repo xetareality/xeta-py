@@ -31,15 +31,15 @@ class Auction():
             'amount': utils.amount(amount),
         })
 
-    def deposit(self, amount, submit=True):
+    def deposit(self, unlocks=None, expires=None, submit=True):
         """
         Deposit to auction pool
         """
         return instruction.wrap({
             'function': 'auction.deposit',
             'pool': self.pool['address'],
-            'amount': utils.amount(amount),
-            'amount': utils.amount(amount),
+            'unlocks': unlocks,
+            'expires': expires,
         })
 
     def resolve(self, submit=True):
@@ -64,12 +64,7 @@ class Auction():
         """
         Close auction pool
         """
-        return transaction.create({**tx, **{
-            'to': self.pool['address'],
-            'function': 'auction.close',
-        }})
-
         return instruction.wrap({
-            'function': 'auction.transfer',
+            'function': 'auction.close',
             'pool': self.pool['address'],
         })

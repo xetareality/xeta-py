@@ -48,6 +48,7 @@ class Launch():
         return instruction.wrap({
             'function': 'launch.resolve',
             'pool': self.pool['address'],
+            'token': self.pool['token'],
         })
 
     def claim(self, claim, submit=True):
@@ -60,7 +61,7 @@ class Launch():
             'claim': claim,
         })
 
-    def deposit(self, amount, submit=True):
+    def deposit(self, amount, unlocks=None, expires=None, submit=True):
         """
         Deposit to launch pool
         """
@@ -68,6 +69,8 @@ class Launch():
             'function': 'launch.deposit',
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
+            'unlocks': unlocks,
+            'expires': expires,
         })
 
     def withdraw(self, claim, submit=True):
