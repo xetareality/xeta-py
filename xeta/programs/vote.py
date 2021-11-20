@@ -54,3 +54,13 @@ class Vote():
             'function': 'vote.resolve',
             'pool': self.pool['address'],
         })
+
+    def oracle(self, answer, submit=True):
+        """
+        Set correct answer
+        """
+        return instruction.wrap({
+            'function': 'vote.oracle',
+            'pool': self.pool['address'],
+            'answer': answer,
+        })

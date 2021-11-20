@@ -28,6 +28,7 @@ class Lottery():
         return instruction.wrap({
             'function': 'lottery.transfer',
             'pool': self.pool['address'],
+            'token': self.pool['token'],
             'amount': utils.amount(amount),
         })
 
@@ -41,7 +42,16 @@ class Lottery():
             'claim': claim,
         })
 
-    def deposit(self, amount, unlocks=None, expires=None, submit=True):
+    def resolve(self, submit=True):
+        """
+        Resolve NFT lottery pool
+        """
+        return instruction.wrap({
+            'function': 'lottery.resolve',
+            'pool': self.pool['address'],
+        })
+
+    def deposit(self, amount=None, unlocks=None, expires=None, submit=True):
         """
         Deposit to lottery pool
         """

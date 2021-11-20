@@ -24,10 +24,16 @@ class Royalty():
 
     def transfer(self, token, submit=True):
         """
-        Transfer to royalty pool
+        Claim from royalty pool
+        """
+        return self.claim(token, submit)
+
+    def claim(self, token, submit=True):
+        """
+        Claim from royalty pool
         """
         return instruction.wrap({
-            'function': 'royalty.transfer',
+            'function': 'royalty.claim',
             'pool': self.pool['address'],
             'token': token,
         })
