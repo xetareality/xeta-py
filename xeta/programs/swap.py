@@ -23,7 +23,7 @@ class Swap():
             'pool': self.pool['address'],
             'token': token,
             'amount': utils.amount(amount),
-        })
+        }, submit)
 
     def deposit(self, tokenAmount, xetaAmount, unlocks=None, expires=None, submit=True):
         """
@@ -36,7 +36,7 @@ class Swap():
             'xetaAmount': utils.amount(xetaAmount),
             'unlocks': unlocks,
             'expires': expires,
-        })
+        }, submit)
 
     def withdraw(self, claim, percentage=1, submit=True):
         """
@@ -49,4 +49,4 @@ class Swap():
             'pool': self.pool['address'],
             'claim': claim,
             'percentage': percentage,
-        })
+        }, submit)

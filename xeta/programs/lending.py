@@ -32,7 +32,7 @@ class Lending():
             'token': self.pool['token'],
             'amount': utils.amount(amount),
             'collateralization': collateralization,
-        })
+        }, submit)
 
     def settle(self, claim, submit=True):
         """
@@ -42,7 +42,7 @@ class Lending():
             'function': 'lending.settle',
             'pool': self.pool['address'],
             'claim': claim,
-        })
+        }, submit)
 
     def liquidate(self, claim, submit=True):
         """
@@ -53,7 +53,7 @@ class Lending():
             'pool': self.pool['address'],
             'token': self.pool['token'],
             'claim': claim,
-        })
+        }, submit)
 
     def deposit(self, amount, unlocks=None, expires=None, submit=True):
         """
@@ -65,7 +65,7 @@ class Lending():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        })
+        }, submit)
 
     def withdraw(self, claim, submit=True):
         """
@@ -76,4 +76,4 @@ class Lending():
             'pool': self.pool['address'],
             'token': self.pool['token'],
             'claim': claim,
-        })
+        }, submit)

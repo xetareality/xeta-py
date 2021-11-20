@@ -35,7 +35,7 @@ class Staking():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        })
+        }, submit)
 
     def claim(self, claim, submit=True):
         """
@@ -45,7 +45,7 @@ class Staking():
             'function': 'staking.claim',
             'pool': self.pool['address'],
             'claim': claim,
-        })
+        }, submit)
 
     def deposit(self, amount, unlocks=None, expires=None, submit=True):
         """
@@ -57,7 +57,7 @@ class Staking():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        })
+        }, submit)
 
     def withdraw(self, claim, submit=True):
         """
@@ -67,4 +67,4 @@ class Staking():
             'function': 'staking.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
-        })
+        }, submit)

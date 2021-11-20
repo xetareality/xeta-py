@@ -29,7 +29,7 @@ class Launch():
             'function': 'launch.transfer',
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
-        })
+        }, submit)
 
     def swap(self, amount, submit=True):
         """
@@ -39,7 +39,7 @@ class Launch():
             'function': 'launch.swap',
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
-        })
+        }, submit)
 
     def resolve(self, submit=True):
         """
@@ -49,7 +49,7 @@ class Launch():
             'function': 'launch.resolve',
             'pool': self.pool['address'],
             'token': self.pool['token'],
-        })
+        }, submit)
 
     def claim(self, claim, submit=True):
         """
@@ -59,7 +59,7 @@ class Launch():
             'function': 'launch.claim',
             'pool': self.pool['address'],
             'claim': claim,
-        })
+        }, submit)
 
     def deposit(self, amount, unlocks=None, expires=None, submit=True):
         """
@@ -71,7 +71,7 @@ class Launch():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        })
+        }, submit)
 
     def withdraw(self, claim, submit=True):
         """
@@ -81,7 +81,7 @@ class Launch():
             'function': 'launch.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
-        })
+        }, submit)
 
     def close(self, submit=True):
         """
@@ -90,4 +90,4 @@ class Launch():
         return instruction.wrap({
             'function': 'launch.close',
             'pool': self.pool['address'],
-        })
+        }, submit)

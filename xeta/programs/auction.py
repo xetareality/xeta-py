@@ -29,7 +29,7 @@ class Auction():
             'function': 'auction.transfer',
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
-        })
+        }, submit)
 
     def deposit(self, unlocks=None, expires=None, submit=True):
         """
@@ -40,7 +40,7 @@ class Auction():
             'pool': self.pool['address'],
             'unlocks': unlocks,
             'expires': expires,
-        })
+        }, submit)
 
     def resolve(self, submit=True):
         """
@@ -49,7 +49,7 @@ class Auction():
         return instruction.wrap({
             'function': 'auction.resolve',
             'pool': self.pool['address'],
-        })
+        }, submit)
 
     def cancel(self, submit=True):
         """
@@ -58,7 +58,7 @@ class Auction():
         return instruction.wrap({
             'function': 'auction.cancel',
             'pool': self.pool['address'],
-        })
+        }, submit)
 
     def close(self, submit=True):
         """
@@ -67,4 +67,4 @@ class Auction():
         return instruction.wrap({
             'function': 'auction.close',
             'pool': self.pool['address'],
-        })
+        }, submit)

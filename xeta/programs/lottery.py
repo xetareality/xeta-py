@@ -30,7 +30,7 @@ class Lottery():
             'pool': self.pool['address'],
             'token': self.pool['token'],
             'amount': utils.amount(amount),
-        })
+        }, submit)
 
     def claim(self, claim, submit=True):
         """
@@ -40,7 +40,7 @@ class Lottery():
             'function': 'lottery.claim',
             'pool': self.pool['address'],
             'claim': claim,
-        })
+        }, submit)
 
     def resolve(self, submit=True):
         """
@@ -49,7 +49,7 @@ class Lottery():
         return instruction.wrap({
             'function': 'lottery.resolve',
             'pool': self.pool['address'],
-        })
+        }, submit)
 
     def deposit(self, amount=None, unlocks=None, expires=None, submit=True):
         """
@@ -61,7 +61,7 @@ class Lottery():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        })
+        }, submit)
 
     def withdraw(self, claim, submit=True):
         """
@@ -71,7 +71,7 @@ class Lottery():
             'function': 'lottery.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
-        })
+        }, submit)
 
     def close(self, submit=True):
         """
@@ -80,7 +80,7 @@ class Lottery():
         return instruction.wrap({
             'function': 'lottery.close',
             'pool': self.pool['address'],
-        })
+        }, submit)
 
     def clear(self, submit=True):
         """
@@ -89,4 +89,4 @@ class Lottery():
         return instruction.wrap({
             'function': 'lottery.clear',
             'pool': self.pool['address'],
-        })
+        }, submit)

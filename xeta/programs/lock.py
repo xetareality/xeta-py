@@ -33,7 +33,7 @@ class Lock():
             'unlocks': unlocks,
             'expires': expires,
             'address': address,
-        })
+        }, submit)
 
     def claim(self, claim, submit=True):
         """
@@ -43,4 +43,4 @@ class Lock():
             'function': 'lock.claim',
             'pool': self.pool['address'],
             'claim': claim,
-        })
+        }, submit)

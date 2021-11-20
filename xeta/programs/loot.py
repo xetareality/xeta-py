@@ -29,7 +29,7 @@ class Loot():
             'function': 'loot.transfer',
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
-        })
+        }, submit)
 
     def deposit(self, token, unlocks=None, expires=None, submit=True):
         """
@@ -41,7 +41,7 @@ class Loot():
             'token': token,
             'unlocks': unlocks,
             'expires': expires,
-        })
+        }, submit)
 
     def withdraw(self, claim, submit=True):
         """
@@ -51,7 +51,7 @@ class Loot():
             'function': 'loot.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
-        })
+        }, submit)
 
     def clear(self, submit=True):
         """
@@ -60,4 +60,4 @@ class Loot():
         return instruction.wrap({
             'function': 'loot.clear',
             'pool': self.pool['address'],
-        })
+        }, submit)

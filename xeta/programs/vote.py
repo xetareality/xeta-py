@@ -34,7 +34,7 @@ class Vote():
             'amount': utils.amount(amount),
             'answer': answer,
             'number': number,
-        })
+        }, submit)
 
     def claim(self, claim, submit=True):
         """
@@ -44,7 +44,7 @@ class Vote():
             'function': 'vote.claim',
             'pool': self.pool['address'],
             'claim': claim,
-        })
+        }, submit)
 
     def resolve(self, submit=True):
         """
@@ -53,7 +53,7 @@ class Vote():
         return instruction.wrap({
             'function': 'vote.resolve',
             'pool': self.pool['address'],
-        })
+        }, submit)
 
     def oracle(self, answer, submit=True):
         """
@@ -63,4 +63,4 @@ class Vote():
             'function': 'vote.oracle',
             'pool': self.pool['address'],
             'answer': answer,
-        })
+        }, submit)

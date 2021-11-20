@@ -36,7 +36,7 @@ class Royalty():
             'function': 'royalty.claim',
             'pool': self.pool['address'],
             'token': token,
-        })
+        }, submit)
 
     def deposit(self, amount, unlocks=None, expires=None, submit=True):
         """
@@ -48,7 +48,7 @@ class Royalty():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        })
+        }, submit)
 
     def withdraw(self, claim, submit=True):
         """
@@ -58,7 +58,7 @@ class Royalty():
             'function': 'royalty.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
-        })
+        }, submit)
 
     def close(self, submit=True):
         """
@@ -67,4 +67,4 @@ class Royalty():
         return instruction.wrap({
             'function': 'royalty.close',
             'pool': self.pool['address'],
-        })
+        }, submit)
