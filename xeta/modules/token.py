@@ -1,20 +1,20 @@
-from xeta.modules import transaction
+from xeta.modules import instruction
 from xeta.library import models, utils
 from xeta.library.config import config
 import json
 import time
 
 
-def create(name, symbol=None, supply=None, reserve=None, description=None, links=None, meta=None, icon=None, owner=None, frozen=None, category=None, object=None, mime=None, raw=False):
+def create(name, symbol=None, supply=None, reserve=None, description=None, links=None, meta=None, icon=None, owner=None, frozen=None, category=None, object=None, mime=None, tx={}):
     """
     Create token
     """
-    instruction = utils.strip({
+    token = utils.strip({
         'function': 'token.create',
         'name': name,
         'symbol': symbol,
-        'supply': supply,
-        'reserve': reserve,
+        'supply': utils.amount(supply),
+        'reserve': utils.amount(reserve),
         'description': description,
         'links': links,
         'meta': meta,
@@ -27,21 +27,21 @@ def create(name, symbol=None, supply=None, reserve=None, description=None, links
     })
 
     if supply:
-        models.required_fields(instruction, ['name', 'symbol', 'supply'])
-        models.exclusive_fields(instruction, ['function', 'name', 'description', 'links', 'meta', 'icon', 'symbol', 'supply', 'reserve'])
+        models.required_fields(token, ['name', 'symbol', 'supply'])
+        models.exclusive_fields(token, ['function', 'name', 'description', 'links', 'meta', 'icon', 'symbol', 'supply', 'reserve'])
     else:
-        Fields.required_fields(instruction, ['name'])
-        Fields.exclusive_fields(instruction, ['function', 'name', 'description', 'links', 'meta', 'icon', 'owner', 'frozen', 'category', 'object', 'mime'])
+        models.required_fields(token, ['name'])
+        models.exclusive_fields(token, ['function', 'name', 'description', 'links', 'meta', 'icon', 'owner', 'frozen', 'category', 'object', 'mime'])
 
-    if raw: return instruction
-    return transaction.create({'instructions': [instruction]})
+    return instruction.wrap(token, tx)
 
-def update(token, name=None, description=None, links=None, meta=None, icon=None, frozen=None, category=None, object=None, mime=None, raw=False):
+def update(token, name=None, description=None, links=None, meta=None, icon=None, frozen=None, category=None, object=None, mime=None, tx={}):
     """
     Update specified values of an token
     """
-    instruction = utils.strip({
+    return instruction.wrap({
         'function': 'token.update',
+        'token': token,
         'name': name,
         'description': description,
         'links': links,
@@ -51,134 +51,120 @@ def update(token, name=None, description=None, links=None, meta=None, icon=None,
         'category': category,
         'object': object,
         'mime': mime,
-    })
+    }, tx)
 
-    if raw: return instruction
-    return transaction.create({'instructions': [instruction]})
-
-def mint(token, amount, raw=False):
+def mint(token, amount, tx={}):
     """
     Mint from reserve
     """
-    instruction = utils.strip({
+    return instruction.wrap({
         'function': 'token.mint',
         'token': token,
         'amount': utils.amount(amount),
-    })
+    }, tx)
 
-    if raw: return instruction
-    return transaction.create({'instructions': [instruction]})
-
-def transfer(token, to, raw=False):
+def transfer(token, to, tx={}):
     """
     Transfer from token
     """
-    instruction = utils.strip({
+    return instruction.wrap({
         'function': 'token.transfer',
         'token': token,
         'to': to,
-    })
+    }, tx)
 
-    if raw: return instruction
-    return transaction.create({'instructions': [instruction]})
+def readAddress(address, args={}):
+    """
+    Read token by address
+    """
+    return resource.read(**{**{
+        'type': 'token',
+        'key': address,
+    }, **args})
 
-def withdraw(token, to, amount, raw=False):
+def listAddresses(addresses, args={}):
     """
-    Withdraw tokens that token holds
+    List tokens by addresses
     """
-    instruction = utils.strip({
-        'function': 'token.withdraw',
-        'token': token,
-        'to': to,
-        'amount': utils.amount(amount),
-    })
+    return resource.list(**{**{
+        'type': 'token',
+        'keys': addresses,
+    }, **args})
 
-    if raw: return instruction
-    return transaction.create({'instructions': [instruction]})
+def scanCreatorCreated(creator, created=None, address=None, args={}):
+    """
+    Scan tokens by creator, sorted by created
+    """
+    return resource.scan(**{**{
+        'type': 'token',
+        'index': 'creator,
+        'indexValue': creator,
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': address,
+    }, **args})
 
-def get(address):
+def scanNameCreated(name, created=None, address=None, args={}):
     """
-    Get token by address
+    Scan tokens by name, sorted by created
     """
-    return models.parse_values(utils.request(
-        method='GET',
-        url=config['interface']+'/token',
-        params={'address': address}
-    ), models.TOKEN)
+    return resource.scan(**{**{
+        'type': 'token',
+        'index': 'name,
+        'indexValue': name,
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': address,
+    }, **args})
 
-def batchGet(addresses):
+def scanSymbolCreated(symbol, created=None, address=None, args={}):
     """
-    Batch get tokens by addresses
+    Scan tokens by symbol, sorted by created
     """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params={'addresses': ','.join(addresses)})
+    return resource.scan(**{**{
+        'type': 'token',
+        'index': 'symbol,
+        'indexValue': symbol,
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': address,
+    }, **args})
 
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByCreator(creator, address=None, created=None, sort='DESC', limit=25):
+def scanOwnerCreated(owner, created=None, address=None, args={}):
     """
-    Scan tokens by creator
+    Scan tokens by owner, sorted by created
     """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'creator': creator, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
+    return resource.scan(**{**{
+        'type': 'token',
+        'index': 'owner,
+        'indexValue': owner,
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': address,
+    }, **args})
 
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanBysymbol(symbol, address=None, created=None, sort='DESC', limit=25):
+def scanOwnerCategoryCreated(owner, category, created=None, address=None, args={}):
     """
-    Scan tokens by symbol
+    Scan tokens by owner and category, sorted by created
     """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'symbol': symbol, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
+    return resource.scan(**{**{
+        'type': 'token',
+        'index': 'ownerCategory,
+        'indexValue': hashed.values([owner, category])[-8:],
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': address,
+    }, **args})
 
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByName(name, address=None, created=None, sort='DESC', limit=25):
+def scanCreatorCategoryCreated(creator, category, created=None, address=None, args={}):
     """
-    Scan tokens by name
+    Scan tokens by creator and category, sorted by created
     """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'name': name, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByOwner(owner, address=None, created=None, sort='DESC', limit=25):
-    """
-    Scan tokens by owner
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'owner': owner, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByOwnerCategory(owner, category=None, address=None, created=None, sort='DESC', limit=25):
-    """
-    Scan tokens by owner and category
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'owner': owner, 'category': category, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
-
-def scanByCreatorCategory(creator, category=None, address=None, created=None, sort='DESC', limit=25):
-    """
-    Scan tokens by creator and category
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/tokens',
-        params=utils.strip({'creator': creator, 'category': category, 'address': address, 'created': created, 'sort': sort, 'limit': limit}))
-
-    return [models.parse_values(r, models.TOKEN) for r in results]
+    return resource.scan(**{**{
+        'type': 'token',
+        'index': 'creatorCategory,
+        'indexValue': hashed.values([creator, category])[-8:],
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': address,
+    }, **args})
