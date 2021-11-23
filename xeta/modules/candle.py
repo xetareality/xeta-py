@@ -1,60 +1,60 @@
-from xeta.library import models
-from xeta.config import config
+from xeta.modules import instruction, resource
+from xeta.library import models, utils
+from xeta.library.config import config
 import time as tm
-import requests
 
-
-def scan(token, interval, time=None, sort='DESC', limit=100):
+def read(interval, token, time, args={}):
     """
-    Scan candles by token and interval
+    Read candle by key (interval:token) and time
     """
-    r = requests.request(
-        method='GET',
-        url=config['interface']+'/candles',
-        params={'token': token, 'interval': interval, 'time': time, 'sort': sort, 'limit': limit})
+    if time is None: time = str(int(tm.time()) - int(tm.time()) % (60*60*24))
 
-    if r.status_code == 400: raise Exception(r.text)
-    elif not r.text: return
+    return resource.read(**{**{
+        'type': 'candle',
+        'key': interval+':'+token,
+        'sort': 'time',
+        'sortValue': time,
+    }, **args})
 
-    try: results = r.json()
-    except: raise Exception('request: invalid request')
-
-    return [models.parse_values(r, models.CANDLE) for r in results]
-
-def scanByTurnover(interval='1d', time=None, key=None, sort='DESC', limit=100):
+def scanIntervalTokenTime(interval, token, time=None, key=None, args={}):
     """
-    Scan candles by interval and time sorted by turnover
+    Scan candles by token and interval, sort by time
     """
-    if time is None: time = int(tm.time()) - int(tm.time()) % (60*60*24)
+    return resource.scan(**{**{
+        'type': 'candle',
+        'index': None,
+        'indexValue': None,
+        'sort': 'time',
+        'sortValue': time,
+        'keyValue': interval+':'+token,
+    }, **args})
 
-    r = requests.request(
-        method='GET',
-        url=config['interface']+'/candles',
-        params={'interval': interval, 'time': time, 'key': key, 'turnover': 1, 'sort': sort, 'limit': limit})
-
-    if r.status_code == 400: raise Exception(r.text)
-    elif not r.text: return
-
-    try: results = r.json()
-    except: raise Exception('request: invalid request')
-
-    return [models.parse_values(r, models.CANDLE) for r in results]
-
-def scanByChange(interval='1d', time=None, key=None, sort='DESC', limit=100):
+def scanIntervalTimeTurnover(interval, time=None, turnover=None, key=None, args={}):
     """
-    Scan candles by interval and time sorted by change
+    Scan candles by interval and time, sort by turnover
     """
-    if time is None: time = int(tm.time()) - int(tm.time()) % (60*60*24)
+    if time is None: time = str(int(tm.time()) - int(tm.time()) % (60*60*24))
 
-    r = requests.request(
-        method='GET',
-        url=config['interface']+'/candles',
-        params={'interval': interval, 'time': time, 'key': key, 'change': 1, 'sort': sort, 'limit': limit})
+    return resource.scan(**{**{
+        'type': 'candle',
+        'index': 'period',
+        'indexValue': interval+':'+time,
+        'sort': 'turnover',
+        'sortValue': turnover,
+        'keyValue': key,
+    }, **args})
 
-    if r.status_code == 400: raise Exception(r.text)
-    elif not r.text: return
+def scanIntervalTimeChange(interval, time=None, change=None, key=None, args={}):
+    """
+    Scan candles by interval and time, sort by change
+    """
+    if time is None: time = str(int(tm.time()) - int(tm.time()) % (60*60*24))
 
-    try: results = r.json()
-    except: raise Exception('request: invalid request')
-
-    return [models.parse_values(r, models.CANDLE) for r in results]
+    return resource.scan(**{**{
+        'type': 'candle',
+        'index': 'period',
+        'indexValue': interval+':'+time,
+        'sort': 'change',
+        'sortValue': change,
+        'keyValue': key,
+    }, **args})

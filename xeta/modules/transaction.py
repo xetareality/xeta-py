@@ -1,8 +1,7 @@
-from xeta.library import hashed, models, wallet, utils
+from xeta.modules import resource
+from xeta.library import models, utils, hashed, wallet
 from xeta.library.config import config
-import json
 import time
-
 
 def submit(instructions, tx={}):
     """
@@ -13,7 +12,7 @@ def submit(instructions, tx={}):
         'sender': config['public_key'],
         'nonce': int(time.time())}, **tx})
 
-    models.exclusive_fields(tx, ['signature', 'sender', 'instructions', 'nonce', 'sponsored'])
+    models.exclusive_fields(tx, ['hash', 'signature', 'sender', 'instructions', 'nonce', 'sponsored'])
     models.valid_formats(tx, models.TRANSACTION)
 
     if not tx.get('signature') and not config['private_key']: return tx
@@ -33,11 +32,11 @@ def poll(hash, interval=0.5, timeout=5):
     """
     start = time.time()
     while time.time() < start+timeout:
-        result = readHash(hash)
-        if result: return r.json()
+        result = read(hash)
+        if result: return result
         else: time.sleep(interval)
 
-def readHash(hash, args={}):
+def read(hash, args={}):
     """
     Read transaction by hash
     """
@@ -46,7 +45,7 @@ def readHash(hash, args={}):
         'key': hash,
     }, **args})
 
-def listHashes(hashes, args={}):
+def list(hashes, args={}):
     """
     List transactions by hashes
     """
@@ -57,11 +56,11 @@ def listHashes(hashes, args={}):
 
 def scanSenderCreated(sender, created=None, hash=None, args={}):
     """
-    Scan transactions by sender, sorted by created
+    Scan transactions by sender, sort by created
     """
     return resource.scan(**{**{
         'type': 'transaction',
-        'index': 'sender,
+        'index': 'sender',
         'indexValue': sender,
         'sort': 'created',
         'sortValue': created,
@@ -70,11 +69,11 @@ def scanSenderCreated(sender, created=None, hash=None, args={}):
 
 def scanPeriodCreated(period, created=None, hash=None, args={}):
     """
-    Scan transactions by period, sorted by created
+    Scan transactions by period, sort by created
     """
     return resource.scan(**{**{
         'type': 'transaction',
-        'index': 'period,
+        'index': 'period',
         'indexValue': period,
         'sort': 'created',
         'sortValue': created,

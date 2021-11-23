@@ -1,18 +1,15 @@
 from xeta.programs import auction, launch, lending, lock, loot, lottery, royalty, staking, swap, vote
-from xeta.modules import transaction
-from xeta.library import models, utils
+from xeta.modules import instruction, resource
+from xeta.library import models, utils, hashed
 from xeta.library.config import config
-import json
-import time
 
-
-def create(token, program, name=None, mechanism=None, candidates=None, rate=None, percentage=None, probability=None, expires=None, answers=None, meta=None, minAmount=None, maxAmount=None, minTime=None, maxTime=None, transfersLimit=None, claimsLimit=None, tokenLimit=None, xetaLimit=None, tokenTarget=None, xetaTarget=None, raw=False):
+def create(token, program, name=None, mechanism=None, candidates=None, rate=None, percentage=None, probability=None, expires=None, answers=None, meta=None, minAmount=None, maxAmount=None, minTime=None, maxTime=None, transfersLimit=None, claimsLimit=None, tokenLimit=None, xetaLimit=None, tokenTarget=None, xetaTarget=None, tx={}):
     """
     Create pool
     """
     assert program in ['auction', 'launch', 'lending', 'lock', 'loot', 'lottery', 'royalty', 'staking', 'vote'], 'validation: invalid program'
 
-    instruction = utils.strip({
+    return instruction.wrap({
         'function': 'pool.create',
         'token': token,
         'program': program,
@@ -25,85 +22,80 @@ def create(token, program, name=None, mechanism=None, candidates=None, rate=None
         'expires': expires,
         'answers': answers,
         'meta': meta,
-        'minAmount': minAmount,
-        'maxAmount': maxAmount,
+        'minAmount': utils.amount(minAmount),
+        'maxAmount': utils.amount(maxAmount),
         'minTime': minTime,
         'maxTime': maxTime,
         'transfersLimit': transfersLimit,
         'claimsLimit': claimsLimit,
-        'tokenLimit': tokenLimit,
-        'xetaLimit': xetaLimit,
-        'tokenTarget': tokenTarget,
-        'xetaTarget': xetaTarget,
-    })
+        'tokenLimit': utils.amount(tokenLimit),
+        'xetaLimit': utils.amount(xetaLimit),
+        'tokenTarget': utils.amount(tokenTarget),
+        'xetaTarget': utils.amount(xetaTarget),
+    }, tx)
 
-    if raw: return instruction
-    return transaction.create({'instructions': [instruction]})
-
-def get(address, extended=None):
-    """
-    Get pool by address
-    """
-    return models.parse_values(utils.request(
-        method='GET',
-        url=config['interface']+'/pool',
-        params=utils.strip({'address': address, 'extended': extended})
-    ), models.POOL)
-
-def batchGet(addresses, extended=None):
-    """
-    Batch get pools by addresses
-    """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/pools',
-        params=utils.strip({'addresses': ','.join(addresses), 'extended': extended}))
-
-    return [models.parse_values(r, models.POOL) for r in results]
-
-def instance(address, extended=None):
+def instance(address):
     """
     Get pool by address
     Return as program instance
     """
-    result = utils.request(
-        method='GET',
-        url=config['interface']+'/pool',
-        params=utils.strip({'address': address, 'extended': extended}))
-
-    pool = models.parse_values(result, models.POOL)
+    pool = read(address)
     instance = getattr(globals()[pool['program']], pool['program'].capitalize())
     return instance(pool)
 
-def scanByToken(token, address=None, program=None, sort='DESC', limit=25, extended=None):
+def read(address, args={}):
     """
-    Scan pools by token
+    Read pool by address
     """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/pools',
-        params=utils.strip({'token': token, 'address': address, 'program': program, 'sort': sort, 'limit': limit, 'extended': extended}))
+    return resource.read(**{**{
+        'type': 'pool',
+        'key': address,
+    }, **args})
 
-    return [models.parse_values(r, models.POOL) for r in results]
-
-def scanByCreator(creator, address=None, program=None, sort='DESC', limit=25, extended=None):
+def list(addresses, args={}):
     """
-    Scan pools by creator
+    List pools by addresses
     """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/pools',
-        params=utils.strip({'creator': creator, 'address': address, 'program': program, 'sort': sort, 'limit': limit, 'extended': extended}))
+    return resource.list(**{**{
+        'type': 'pool',
+        'keys': addresses,
+    }, **args})
 
-    return [models.parse_values(r, models.POOL) for r in results]
-
-def scanByName(name, address=None, program=None, sort='DESC', limit=25, extended=None):
+def scanTokenProgramCreated(token, program, created=None, address=None, args={}):
     """
-    Scan pools by name
+    Scan pools by token and program, sort by created
     """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/pools',
-        params=utils.strip({'name': name, 'address': address, 'program': program, 'sort': sort, 'limit': limit, 'extended': extended}))
+    return resource.scan(**{**{
+        'type': 'pool',
+        'index': 'tokenProgram',
+        'indexValue': hashed.values([token, program])[-8:],
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': address,
+    }, **args})
 
-    return [models.parse_values(r, models.POOL) for r in results]
+def scanNameCreated(name, created=None, address=None, args={}):
+    """
+    Scan pools by name, sort by created
+    """
+    return resource.scan(**{**{
+        'type': 'pool',
+        'index': 'name',
+        'indexValue': name,
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': address,
+    }, **args})
+
+def scanCreatorCreated(creator, created=None, address=None, args={}):
+    """
+    Scan pools by creator, sort by created
+    """
+    return resource.scan(**{**{
+        'type': 'pool',
+        'index': 'creator',
+        'indexValue': creator,
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': address,
+    }, **args})

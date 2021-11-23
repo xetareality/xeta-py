@@ -1,36 +1,27 @@
-from xeta.modules import transaction
+from xeta.modules import instruction, resource
 from xeta.library import models, utils
 from xeta.library.config import config
-import json
-import time
 
-
-def get(address):
+def read(address):
     """
-    Get address data (account & balance)
+    Read account data for an address (pool, token, balance)
     """
     result = utils.request(
         method='GET',
-        url=config['interface']+'/address',
+        url=config['interface']+'/account',
         params={'address': address})
 
-    return {
-        'pool': models.parse_values(results['pool'], models.POOL),
-        'balance': models.parse_values(result['balance'], models.BALANCE),
-        'account': models.parse_values(result['account'], models.TOKEN)}
+    return {'pool': result.get('pool'), 'balance': result.get('balance'), 'token': result.get('token')}
 
-def update(name, object=None, description=None, links=None, meta=None, raw=False):
+def update(name, object=None, description=None, links=None, meta=None, tx={}):
     """
     Update (or create) account
     """
-    instruction = utils.strip({
+    return instruction.wrap({
         'function': 'account.update',
         'name': name,
         'object': object,
         'description': description,
         'links': links,
         'meta': meta,
-    })
-
-    if raw: return instruction
-    return transaction.create({'instructions': [instruction]})
+    }, tx)

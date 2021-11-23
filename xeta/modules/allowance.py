@@ -1,62 +1,68 @@
-from xeta.modules import transaction
-from xeta.library import models, utils
+from xeta.modules import instruction, resource
+from xeta.library import models, utils, hashed
 from xeta.library.config import config
-import json
-import time
 
 
-def update(token, spender, amount, raw=False):
+def update(spender, token, amount, tx={}):
     """
     Update allowance for spender address
     """
-    instruction = utils.strip({
+    return instruction.wrap({
         'function': 'allowance.update',
-        'token': token,
         'spender': spender,
+        'token': token,
         'amount': utils.amount(amount),
-    })
+    }, tx)
 
-    if raw: return instruction
-    return transaction.create({'instructions': [instruction]})
+def read(hash, args={}):
+    """
+    Read allowance by hash
+    """
+    return resource.read(**{**{
+        'type': 'allowance',
+        'key': hash,
+    }, **args})
 
-def get(address, token, spender, extended=None):
+def readAddressTokenSpender(address, token, spender, args={}):
     """
-    Get allowance by address, token and spender
+    Read allowance by address, token and spender
     """
-    return models.parse_values(utils.request(
-        method='GET',
-        url=config['interface']+'/allowance',
-        params=utils.strip({'address': address, 'token': token, 'spender': spender, 'extended': extended})
-    ), models.ALLOWANCE)
+    return resource.read(**{**{
+        'type': 'allowance',
+        'key': hashed.allowance({'address': address, 'token': token, 'spender': spender}),
+    }, **args})
 
-def getByHash(hash, extended=None):
+def list(hashes, args={}):
     """
-    Get allowance by hash
+    List allowances by hashes
     """
-    return models.parse_values(utils.request(
-        method='GET',
-        url=config['interface']+'/allowance',
-        params=utils.strip({'hash': hash, 'extended': extended})
-    ), models.ALLOWANCE)
+    return resource.list(**{**{
+        'type': 'allowance',
+        'keys': hashes,
+    }, **args})
 
-def scanByAddress(address, hash=None, created=None, sort='DESC', limit=25, extended=None):
+def scanAddressCreated(address, created=None, hash=None, args={}):
     """
-    Scan allowances by address
+    Scan allowances by address, sort by created
     """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/allowances',
-        params=utils.strip({'address': address, 'hash': hash, 'created': created, 'sort': sort, 'limit': limit, 'extended': extended}))
+    return resource.scan(**{**{
+        'type': 'allowance',
+        'index': 'address',
+        'indexValue': address,
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': hash,
+    }, **args})
 
-    return [models.parse_values(r, models.ALLOWANCE) for r in results]
-
-def scanBySpender(spender, hash=None, created=None, sort='DESC', limit=25, extended=None):
+def scanSpenderCreated(spender, created=None, hash=None, args={}):
     """
-    Scan allowances by spender
+    Scan allowances by spender, sort by created
     """
-    results = utils.request(
-        method='GET',
-        url=config['interface']+'/allowances',
-        params=utils.strip({'spender': spender, 'hash': hash, 'created': created, 'sort': sort, 'limit': limit, 'extended': extended}))
-
-    return [models.parse_values(r, models.ALLOWANCE) for r in results]
+    return resource.scan(**{**{
+        'type': 'allowance',
+        'index': 'spender',
+        'indexValue': spender,
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': hash,
+    }, **args})

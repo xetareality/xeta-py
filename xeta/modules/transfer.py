@@ -1,5 +1,6 @@
-from xeta.modules import instruction
-from xeta.library import utils, hashed
+from xeta.modules import instruction, resource
+from xeta.library import models, utils, hashed
+from xeta.library.config import config
 
 
 def create(to, token, amount, fromAddress=None, message=None, tx={}):
@@ -15,7 +16,7 @@ def create(to, token, amount, fromAddress=None, message=None, tx={}):
         'message': message,
     }, tx)
 
-def readHash(hash, args={}):
+def read(hash, args={}):
     """
     Read transfer by hash
     """
@@ -24,7 +25,7 @@ def readHash(hash, args={}):
         'key': hash,
     }, **args})
 
-def listHashes(hashes, args={}):
+def list(hashes, args={}):
     """
     List transfers by hashes
     """
@@ -35,11 +36,11 @@ def listHashes(hashes, args={}):
 
 def scanSenderCreated(sender, created=None, hash=None, args={}):
     """
-    Scan transfers by sender, sorted by created
+    Scan transfers by sender, sort by created
     """
     return resource.scan(**{**{
         'type': 'transfer',
-        'index': 'sender,
+        'index': 'sender',
         'indexValue': sender,
         'sort': 'created',
         'sortValue': created,
@@ -48,11 +49,11 @@ def scanSenderCreated(sender, created=None, hash=None, args={}):
 
 def scanFromCreated(fromAddress, created=None, hash=None, args={}):
     """
-    Scan transfers by from, sorted by created
+    Scan transfers by from, sort by created
     """
     return resource.scan(**{**{
         'type': 'transfer',
-        'index': 'from,
+        'index': 'from',
         'indexValue': fromAddress,
         'sort': 'created',
         'sortValue': created,
@@ -61,11 +62,11 @@ def scanFromCreated(fromAddress, created=None, hash=None, args={}):
 
 def scanToCreated(to, created=None, hash=None, args={}):
     """
-    Scan transfers by to, sorted by created
+    Scan transfers by to, sort by created
     """
     return resource.scan(**{**{
         'type': 'transfer',
-        'index': 'to,
+        'index': 'to',
         'indexValue': to,
         'sort': 'created',
         'sortValue': created,
@@ -74,11 +75,11 @@ def scanToCreated(to, created=None, hash=None, args={}):
 
 def scanTokenCreated(token, created=None, hash=None, args={}):
     """
-    Scan transfers by token, sorted by created
+    Scan transfers by token, sort by created
     """
     return resource.scan(**{**{
         'type': 'transfer',
-        'index': 'token,
+        'index': 'token',
         'indexValue': token,
         'sort': 'created',
         'sortValue': created,
@@ -87,12 +88,11 @@ def scanTokenCreated(token, created=None, hash=None, args={}):
 
 def scanFromTokenCreated(fromAddress, token, created=None, hash=None, args={}):
     """
-    Scan transfers by fromToken, sorted by created
+    Scan transfers by fromToken, sort by created
     """
-    fromToken = 
     return resource.scan(**{**{
         'type': 'transfer',
-        'index': 'fromToken,
+        'index': 'fromToken',
         'indexValue': hashed.values([fromAddress, token])[-8:],
         'sort': 'created',
         'sortValue': created,
@@ -101,11 +101,11 @@ def scanFromTokenCreated(fromAddress, token, created=None, hash=None, args={}):
 
 def scanToTokenCreated(to, token, created=None, hash=None, args={}):
     """
-    Scan transfers by toToken, sorted by created
+    Scan transfers by toToken, sort by created
     """
     return resource.scan(**{**{
         'type': 'transfer',
-        'index': 'toToken,
+        'index': 'toToken',
         'indexValue': hashed.values([to, token])[-8:],
         'sort': 'created',
         'sortValue': created,

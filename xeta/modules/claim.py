@@ -59,7 +59,7 @@ def resolve(claim, tx={}):
         'claim': claim,
     }, tx)
 
-def readHash(hash, args={}):
+def read(hash, args={}):
     """
     Read claim by hash
     """
@@ -68,7 +68,7 @@ def readHash(hash, args={}):
         'key': hash,
     }, **args})
 
-def listHashes(hashes, args={}):
+def list(hashes, args={}):
     """
     List claims by hashes
     """
@@ -83,11 +83,11 @@ def scanHolderCategoryCreated(holder, category, created=None, hash=None, args={}
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'holderCategory,
+        'index': 'holderCategory',
         'indexValue': hashed.values([holder, category])[-8:],
         'sort': 'created',
         'sortValue': created,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})
 
 def scanIssuerCategoryCreated(issuer, category, created=None, hash=None, args={}):
@@ -96,11 +96,11 @@ def scanIssuerCategoryCreated(issuer, category, created=None, hash=None, args={}
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'issuerCategory,
+        'index': 'issuerCategory',
         'indexValue': hashed.values([issuer, category])[-8:],
         'sort': 'created',
         'sortValue': created,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})
 
 def scanIssuerAnswer(issuer, answer=None, hash=None, args={}):
@@ -109,11 +109,11 @@ def scanIssuerAnswer(issuer, answer=None, hash=None, args={}):
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'issuer,
-        'indexValue': issuer,
+        'index': 'issuer',
+        'indexValue': hashed.values([issuer])[-8:],
         'sort': 'answer',
         'sortValue': answer,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})
 
 def scanIssuerNumber(issuer, number=None, hash=None, args={}):
@@ -122,11 +122,11 @@ def scanIssuerNumber(issuer, number=None, hash=None, args={}):
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'issuer,
-        'indexValue': issuer,
+        'index': 'issuer',
+        'indexValue': hashed.values([issuer])[-8:],
         'sort': 'number',
         'sortValue': number,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})
 
 def scanIssuerTokenAmount(issuer, tokenAmount=None, hash=None, args={}):
@@ -135,11 +135,11 @@ def scanIssuerTokenAmount(issuer, tokenAmount=None, hash=None, args={}):
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'issuer,
-        'indexValue': issuer,
+        'index': 'issuer',
+        'indexValue': hashed.values([issuer])[-8:],
         'sort': 'tokenAmount',
         'sortValue': tokenAmount,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})
 
 def scanIssuerXetaAmount(issuer, xetaAmount=None, hash=None, args={}):
@@ -148,11 +148,11 @@ def scanIssuerXetaAmount(issuer, xetaAmount=None, hash=None, args={}):
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'issuer,
-        'indexValue': issuer,
+        'index': 'issuer',
+        'indexValue': hashed.values([issuer])[-8:],
         'sort': 'xetaAmount',
         'sortValue': xetaAmount,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})
 
 def scanIssuerCreated(issuer, created=None, hash=None, args={}):
@@ -161,11 +161,11 @@ def scanIssuerCreated(issuer, created=None, hash=None, args={}):
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'issuer,
+        'index': 'issuer',
         'indexValue': hashed.values([issuer])[-8:],
         'sort': 'created',
         'sortValue': created,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})
 
 def scanHolderCreated(holder, created=None, hash=None, args={}):
@@ -174,11 +174,11 @@ def scanHolderCreated(holder, created=None, hash=None, args={}):
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'holder,
+        'index': 'holder',
         'indexValue': hashed.values([holder])[-8:],
         'sort': 'created',
         'sortValue': created,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})
 
 def scanIssuerTokenCreated(issuer, token, created=None, hash=None, args={}):
@@ -187,11 +187,11 @@ def scanIssuerTokenCreated(issuer, token, created=None, hash=None, args={}):
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'issuerToken,
+        'index': 'issuerToken',
         'indexValue': hashed.values([issuer, token])[-8:],
         'sort': 'created',
         'sortValue': created,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})
 
 def scanHolderTokenCreated(holder, token, created=None, hash=None, args={}):
@@ -200,11 +200,11 @@ def scanHolderTokenCreated(holder, token, created=None, hash=None, args={}):
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'holderToken,
+        'index': 'holderToken',
         'indexValue': hashed.values([holder, token])[-8:],
         'sort': 'created',
         'sortValue': created,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})
 
 def scanIssuerHolder(issuer, holder, created=None, hash=None, args={}):
@@ -213,11 +213,11 @@ def scanIssuerHolder(issuer, holder, created=None, hash=None, args={}):
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'issuerHolder,
+        'index': 'issuerHolder',
         'indexValue': hashed.values([issuer, holder])[-8:],
         'sort': 'created',
         'sortValue': created,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})
 
 def scanIssuerHolderToken(issuer, holder, token, created=None, hash=None, args={}):
@@ -226,9 +226,9 @@ def scanIssuerHolderToken(issuer, holder, token, created=None, hash=None, args={
     """
     return resource.scan(**{**{
         'type': 'claim',
-        'index': 'issuerHolderToken,
+        'index': 'issuerHolderToken',
         'indexValue': hashed.values([issuer, holder, token])[-8:],
         'sort': 'created',
         'sortValue': created,
-        'keyValue': token,
+        'keyValue': hash,
     }, **args})

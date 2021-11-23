@@ -1,8 +1,6 @@
-from xeta.modules import instruction
-from xeta.library import models, utils
+from xeta.modules import instruction, resource
+from xeta.library import models, utils, hashed
 from xeta.library.config import config
-import json
-import time
 
 
 def create(name, symbol=None, supply=None, reserve=None, description=None, links=None, meta=None, icon=None, owner=None, frozen=None, category=None, object=None, mime=None, tx={}):
@@ -73,7 +71,7 @@ def transfer(token, to, tx={}):
         'to': to,
     }, tx)
 
-def readAddress(address, args={}):
+def read(address, args={}):
     """
     Read token by address
     """
@@ -82,7 +80,7 @@ def readAddress(address, args={}):
         'key': address,
     }, **args})
 
-def listAddresses(addresses, args={}):
+def list(addresses, args={}):
     """
     List tokens by addresses
     """
@@ -93,11 +91,11 @@ def listAddresses(addresses, args={}):
 
 def scanCreatorCreated(creator, created=None, address=None, args={}):
     """
-    Scan tokens by creator, sorted by created
+    Scan tokens by creator, sort by created
     """
     return resource.scan(**{**{
         'type': 'token',
-        'index': 'creator,
+        'index': 'creator',
         'indexValue': creator,
         'sort': 'created',
         'sortValue': created,
@@ -106,11 +104,11 @@ def scanCreatorCreated(creator, created=None, address=None, args={}):
 
 def scanNameCreated(name, created=None, address=None, args={}):
     """
-    Scan tokens by name, sorted by created
+    Scan tokens by name, sort by created
     """
     return resource.scan(**{**{
         'type': 'token',
-        'index': 'name,
+        'index': 'name',
         'indexValue': name,
         'sort': 'created',
         'sortValue': created,
@@ -119,11 +117,11 @@ def scanNameCreated(name, created=None, address=None, args={}):
 
 def scanSymbolCreated(symbol, created=None, address=None, args={}):
     """
-    Scan tokens by symbol, sorted by created
+    Scan tokens by symbol, sort by created
     """
     return resource.scan(**{**{
         'type': 'token',
-        'index': 'symbol,
+        'index': 'symbol',
         'indexValue': symbol,
         'sort': 'created',
         'sortValue': created,
@@ -132,11 +130,11 @@ def scanSymbolCreated(symbol, created=None, address=None, args={}):
 
 def scanOwnerCreated(owner, created=None, address=None, args={}):
     """
-    Scan tokens by owner, sorted by created
+    Scan tokens by owner, sort by created
     """
     return resource.scan(**{**{
         'type': 'token',
-        'index': 'owner,
+        'index': 'owner',
         'indexValue': owner,
         'sort': 'created',
         'sortValue': created,
@@ -145,11 +143,11 @@ def scanOwnerCreated(owner, created=None, address=None, args={}):
 
 def scanOwnerCategoryCreated(owner, category, created=None, address=None, args={}):
     """
-    Scan tokens by owner and category, sorted by created
+    Scan tokens by owner and category, sort by created
     """
     return resource.scan(**{**{
         'type': 'token',
-        'index': 'ownerCategory,
+        'index': 'ownerCategory',
         'indexValue': hashed.values([owner, category])[-8:],
         'sort': 'created',
         'sortValue': created,
@@ -158,11 +156,11 @@ def scanOwnerCategoryCreated(owner, category, created=None, address=None, args={
 
 def scanCreatorCategoryCreated(creator, category, created=None, address=None, args={}):
     """
-    Scan tokens by creator and category, sorted by created
+    Scan tokens by creator and category, sort by created
     """
     return resource.scan(**{**{
         'type': 'token',
-        'index': 'creatorCategory,
+        'index': 'creatorCategory',
         'indexValue': hashed.values([creator, category])[-8:],
         'sort': 'created',
         'sortValue': created,

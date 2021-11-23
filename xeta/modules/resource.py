@@ -1,4 +1,4 @@
-from xeta.library import models, utils
+from xeta.library import utils
 from xeta.library.config import config
 
 
@@ -8,16 +8,11 @@ def read(type, key, sort=None, sortValue=None, fields=None, preview=None):
     """
     assert type in ['transaction', 'transfer', 'balance', 'allowance', 'token', 'claim', 'pool', 'candle', 'statistic', 'lookup'], 'type:invalid'
 
-    if type in ['token', 'pool'] keyName = 'address'
-    elif type in ['statistic', 'candle']: keyName = 'key'
-    else: keyName = 'hash'
-
     return utils.request(
         method='GET',
         url=config['interface']+'/read',
         params=utils.strip({
             'type': type,
-            'key': keyName,
             'keyValue': key,
             'sort': sort,
             'sortValue': sortValue,
@@ -30,18 +25,37 @@ def list(type, keys, sort=None, sortValues=None, fields=None, preview=None):
     """
     assert type in ['transaction', 'transfer', 'balance', 'allowance', 'token', 'claim', 'pool', 'candle', 'statistic', 'lookup'], 'type:invalid'
 
-    if type in ['token', 'pool'] keyName = 'address'
-    elif type in ['statistic', 'candle']: keyName = 'key'
-    else: keyName = 'hash'
-
     return utils.request(
         method='GET',
-        url=config['interface']+'/read',
+        url=config['interface']+'/list',
         params=utils.strip({
             'type': type,
-            'key': keyName,
             'keyValues': ','.join(keys),
             'sort': sort,
             'sortValues': sortValues,
+            'preview': preview,
+        }))
+
+def scan(type, index, indexValue, sort=None, sortValue=None, keyValue=None, operator=None, asc=False, limit=None, preview=None):
+    """
+    Scan resources by index
+    Candles and statistics support scanning without index (by key, sorted by time)
+    """
+    if type in ['candle', 'statistic']: limit = min(limit, 1000) if limit else 200
+    else: limit = min(limit, 25) if limit else 25
+
+    return utils.request(
+        method='GET',
+        url=config['interface']+'/scan',
+        params=utils.strip({
+            'type': type,
+            'keyValue': keyValue,
+            'index': index,
+            'indexValue': indexValue,
+            'sort': sort,
+            'sortValue': sortValue,
+            'operator': operator,
+            'asc': asc,
+            'limit': limit,
             'preview': preview,
         }))
