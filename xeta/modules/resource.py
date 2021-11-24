@@ -41,6 +41,8 @@ def scan(type, index, indexValue, sort=None, sortValue=None, keyValue=None, oper
     Scan resources by index
     Candles and statistics support scanning without index (by key, sorted by time)
     """
+    assert type in ['transaction', 'transfer', 'balance', 'allowance', 'token', 'claim', 'pool', 'candle', 'statistic', 'lookup'], 'type:invalid'
+
     if type in ['candle', 'statistic']: limit = min(limit, 1000) if limit else 200
     else: limit = min(limit, 25) if limit else 25
 

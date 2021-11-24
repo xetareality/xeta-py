@@ -3,7 +3,7 @@ from xeta.library import models, utils, hashed
 from xeta.library.config import config
 
 
-def create(name, symbol=None, supply=None, reserve=None, description=None, links=None, meta=None, icon=None, owner=None, frozen=None, category=None, object=None, mime=None, tx={}):
+def create(name, symbol=None, supply=None, reserve=None, description=None, links=None, meta=None, icon=None, owner=None, frozen=None, category=None, object=None, mime=None, content=None, tx={}):
     """
     Create token
     """
@@ -22,18 +22,19 @@ def create(name, symbol=None, supply=None, reserve=None, description=None, links
         'category': category,
         'object': object,
         'mime': mime,
+        'content': content,
     })
 
     if supply:
-        models.required_fields(token, ['name', 'symbol', 'supply'])
-        models.exclusive_fields(token, ['function', 'name', 'description', 'links', 'meta', 'icon', 'symbol', 'supply', 'reserve'])
+        models.requiredFields(token, ['name', 'symbol', 'supply'])
+        models.exclusiveFields(token, ['function', 'name', 'description', 'links', 'meta', 'icon', 'symbol', 'supply', 'reserve'])
     else:
-        models.required_fields(token, ['name'])
-        models.exclusive_fields(token, ['function', 'name', 'description', 'links', 'meta', 'icon', 'owner', 'frozen', 'category', 'object', 'mime'])
+        models.requiredFields(token, ['name'])
+        models.exclusiveFields(token, ['function', 'name', 'description', 'links', 'meta', 'icon', 'owner', 'frozen', 'category', 'object', 'mime', 'content'])
 
     return instruction.wrap(token, tx)
 
-def update(token, name=None, description=None, links=None, meta=None, icon=None, frozen=None, category=None, object=None, mime=None, tx={}):
+def update(token, name=None, description=None, links=None, meta=None, icon=None, frozen=None, category=None, mime=None, tx={}):
     """
     Update specified values of an token
     """
@@ -47,7 +48,6 @@ def update(token, name=None, description=None, links=None, meta=None, icon=None,
         'icon': icon,
         'frozen': frozen,
         'category': category,
-        'object': object,
         'mime': mime,
     }, tx)
 
@@ -63,7 +63,7 @@ def mint(token, amount, tx={}):
 
 def transfer(token, to, tx={}):
     """
-    Transfer from token
+    Transfer token
     """
     return instruction.wrap({
         'function': 'token.transfer',
@@ -136,6 +136,19 @@ def scanOwnerCreated(owner, created=None, address=None, args={}):
         'type': 'token',
         'index': 'owner',
         'indexValue': owner,
+        'sort': 'created',
+        'sortValue': created,
+        'keyValue': address,
+    }, **args})
+
+def scanContentCreated(content, created=None, address=None, args={}):
+    """
+    Scan tokens by content, sort by created
+    """
+    return resource.scan(**{**{
+        'type': 'token',
+        'index': 'content',
+        'indexValue': content,
         'sort': 'created',
         'sortValue': created,
         'keyValue': address,

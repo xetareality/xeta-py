@@ -3,11 +3,12 @@ from xeta.modules import instruction, resource
 from xeta.library import models, utils, hashed
 from xeta.library.config import config
 
+
 def create(token, program, name=None, mechanism=None, candidates=None, rate=None, percentage=None, probability=None, expires=None, answers=None, meta=None, minAmount=None, maxAmount=None, minTime=None, maxTime=None, transfersLimit=None, claimsLimit=None, tokenLimit=None, xetaLimit=None, tokenTarget=None, xetaTarget=None, tx={}):
     """
     Create pool
     """
-    assert program in ['auction', 'launch', 'lending', 'lock', 'loot', 'lottery', 'royalty', 'staking', 'vote'], 'validation: invalid program'
+    assert program in ['auction', 'launch', 'lending', 'lock', 'loot', 'lottery', 'royalty', 'staking', 'vote'], 'program:invalid'
 
     return instruction.wrap({
         'function': 'pool.create',
@@ -34,12 +35,12 @@ def create(token, program, name=None, mechanism=None, candidates=None, rate=None
         'xetaTarget': utils.amount(xetaTarget),
     }, tx)
 
-def instance(address):
+def instance(address, args={}):
     """
     Get pool by address
     Return as program instance
     """
-    pool = read(address)
+    pool = read(address, args)
     instance = getattr(globals()[pool['program']], pool['program'].capitalize())
     return instance(pool)
 

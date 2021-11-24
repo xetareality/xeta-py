@@ -23,13 +23,22 @@ def read(hash, args={}):
         'key': hash,
     }, **args})
 
-def readAddressTokenSpender(address, token, spender, args={}):
+def list(hashes, args={}):
     """
-    Read allowance by address, token and spender
+    List allowances by hashes
+    """
+    return resource.list(**{**{
+        'type': 'allowance',
+        'keys': hashes,
+    }, **args})
+
+def readAddressSpenderToken(address, spender, token, args={}):
+    """
+    Read allowance by address, spender, and token
     """
     return resource.read(**{**{
         'type': 'allowance',
-        'key': hashed.allowance({'address': address, 'token': token, 'spender': spender}),
+        'key': hashed.allowance({'address': address, 'spender': spender, 'token': token}),
     }, **args})
 
 def list(hashes, args={}):

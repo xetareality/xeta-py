@@ -2,6 +2,7 @@ from xeta.modules import instruction, resource
 from xeta.library import models, utils, hashed
 from xeta.library.config import config
 
+
 def read(hash, args={}):
     """
     Read balance by hash
