@@ -15,9 +15,9 @@ pip install xeta
 # Imports
 import xeta
 
-# Generate and connect a keypair
-public, private = xeta.crypto.generate_keypair()
-xeta.connect(public, private)
+# Generate and init a keypair
+publicKey, privateKey = xeta.wallet.generateKeypair()
+xeta.wallet.init(publicKey, privateKey)
 ```
 
 # Interface
@@ -27,216 +27,193 @@ The interface methods allow to interact with storage nodes for read-only functio
 ## Transaction
 
 ```
-# Get a transaction by signature
-xeta.transaction.get(signature=SIGNATURE)
+xeta.transaction.poll(hash=hash, interval=number, timeout=number)
+xeta.transaction.read(hash=hash)
+xeta.transaction.list(hashes=[hash])
+xeta.transaction.scanSenderCreated(sender=address)
+xeta.transaction.scanPeriodCreated(period=period)
+```
 
-# Batch get transactions by signatures
-xeta.transaction.batchGet(signatures=[SIGNATURE, SIGNATURE])
+## Transfer
 
-# Poll a transaction by signature
-xeta.transaction.poll(signature=SIGNATURE, interval=0.5, timeout=5)
-
-# Scan transactions by from-address
-xeta.transaction.scanByFrom(from_address=ADDRESS, sort='DESC', limit=25)
-
-# Scan transactions by to-address
-xeta.transaction.scanByTo(to=ADDRESS, sort='DESC', limit=25)
-
-# Scan transactions by sender-address
-xeta.transaction.scanBySender(sender=ADDRESS, sort='DESC', limit=25)
-
-# Scan transactions by token
-xeta.transaction.scanByToken(token=ADDRESS, sort='DESC', limit=25)
-
-# Scan transactions by period
-xeta.transaction.scanByPeriod(period=YYMMDDHH, sort='DESC', limit=25)
-
-# Scan transactions by from and token
-xeta.transaction.scanByFromToken(from_address=ADDRESS, token=ADDRESS, sort='DESC', limit=25)
-
-# Scan transactions by to and token
-xeta.transaction.scanByToToken(to=ADDRESS, token=ADDRESS, sort='DESC', limit=25)
+```
+xeta.transfer.read(hash=hash)
+xeta.transfer.list(hashes=[hash])
+xeta.transfer.scanSenderCreated(sender=address)
+xeta.transfer.scanFromCreated(fromAddress=address)
+xeta.transfer.scanToCreated(to=address)
+xeta.transfer.scanTokenCreated(token=token)
+xeta.transfer.scanFromTokenCreated(fromAddress=address, token=token)
+xeta.transfer.scanToTokenCreated(to=address, token=token)
 ```
 
 ## Token
 
 ```
-# Get a token by address
-xeta.token.get(address=ADDRESS)
-
-# Batch get tokens by addresses
-xeta.token.batchGet(signatures=[SIGNATURE, SIGNATURE])
-
-# Scan tokens by creator
-xeta.token.scanByCreator(creator=ADDRESS, sort='DESC', limit=25)
-
-# Scan tokens by ticker
-xeta.token.scanByTicker(ticker='XETA', sort='DESC', limit=25)
-
-# Scan tokens by name
-xeta.token.scanByName(name'Xeta', sort='DESC', limit=25)
+xeta.token.read(address=token)
+xeta.token.list(addresses=[token])
+xeta.token.scanCreatorCreated(creator=address)
+xeta.token.scanNameCreated(name=string)
+xeta.token.scanSymbolCreated(symbol=string)
+xeta.token.scanOwnerCreated(owner=address)
+xeta.token.scanContentCreated(content=hash)
+xeta.token.scanOwnerCategoryCreated(owner=address, category=string)
+xeta.token.scanCreatorCategoryCreated(creator=address, category=string)
 ```
 
 ## Pool
 
 ```
-# Get a pool by address
-xeta.pool.get(address=ADDRESS)
+xeta.pool.instance(address=pool)
+xeta.pool.read(address=pool)
+xeta.pool.list(addresses=[pool])
+xeta.pool.scanTokenProgramCreated(token=token, program=string)
+xeta.pool.scanNameCreated(name=string)
+xeta.pool.scanCreatorCreated(creator=address)
+```
 
-# Scan pools by creator
-xeta.pool.scanByCreator(creator=ADDRESS, sort='DESC', limit=25)
+## Account
 
-# Scan pools by token
-xeta.pool.scanByToken(token=ADDRESS, sort='DESC', limit=25)
-
-# Scan pools by name
-xeta.pool.scanByName(name'Xeta Staking', sort='DESC', limit=25)
+```
+xeta.account.read(address=address)
 ```
 
 ## Allowance
 
 ```
-# Get an allowance for address, token and spender
-xeta.allowance.get(address=ADDRESS, token=ADDRESS, spender=ADDRESS)
-
-# Get an allowance by hash
-xeta.allowance.getByHash(hash=HASH)
-
-# Scan allowances by address
-xeta.allowance.scanByAddress(address=ADDRESS, sort='DESC', limit=25)
-
-# Scan allowances by spender
-xeta.allowance.scanBySpender(spender=ADDRESS, sort='DESC', limit=25)
-```
-
-## Audit
-
-```
-# Get audit of a token-balance
-xeta.audit.balance(address=ADDRESS, token=ADDRESS, limit=5)
-
-# Get audit of a xeta-balance
-xeta.audit.xeta(address=ADDRESS, limit=5)
-
-# Get audit of a transaction
-xeta.audit.transaction(signature=SIGNATURE)
-
+xeta.allowance.read(hash=hash)
+xeta.allowance.list(hashes=[hash])
+xeta.allowance.readAddressSpenderToken(address=address, spender=address, token=token)
+xeta.allowance.scanAddressCreated(address=address)
+xeta.allowance.scanSpenderCreated(spender=address)
 ```
 
 ## Balance
 
 ```
-# Get a balance by address and token
-xeta.balance.get(address=ADDRESS, token=ADDRESS)
-
-# Scan balances by address
-xeta.balance.scanByAddress(address=ADDRESS, sort='DESC', limit=25)
-
-# Scan balances by token
-xeta.balance.scanByToken(token=ADDRESS, sort='DESC', limit=25)
+xeta.balance.read(hash=hash)
+xeta.balance.list(hashes=[hash])
+xeta.balance.readAddressToken(address=address, token=token)
+xeta.balance.scanAddressAmount(address=address)
+xeta.balance.scanTokenAmount(token=token)
 ```
 
 ## Candle
 
 ```
-# Scan candles by token and interval (currently available: 5m, 1h, 4h, 1d, 1w)
-xeta.candle.scan(token=ADDRESS, interval=INTERVAL, sort='DESC', limit=100)
+xeta.candle.read(interval=interval, token=token, time=time)
+xeta.candle.scanIntervalTokenTime(interval=interval, token=token)
+xeta.candle.scanIntervalTimeTurnover(interval=interval)
+xeta.candle.scanIntervalTimeChange(interval=interval)
 ```
 
 ## Claim
 
 ```
-# Get a claim by address, token and owner
-xeta.claim.get(address=ADDRESS, token=ADDRESS, owner=ADDRESS)
-
-# Get a claim by hash
-xeta.claim.getByHash(hash=HASH, sort='DESC', limit=25)
-
-# Scan claims by amount
-xeta.claim.scanByAmount(owner=ADDRESS, sort='DESC', limit=25)
-
-# Scan claims by created
-xeta.claim.scanByCreated(owner=ADDRESS, sort='DESC', limit=25)
+xeta.claim.read(hash=hash)
+xeta.claim.list(hashes=[hash])
+xeta.claim.scanHolderCategoryCreated(holder=address, category=string)
+xeta.claim.scanIssuerCategoryCreated(issuer=address, category=string)
+xeta.claim.scanIssuerAnswer(issuer=address)
+xeta.claim.scanIssuerNumber(issuer=address)
+xeta.claim.scanIssuerTokenAmount(issuer=address)
+xeta.claim.scanIssuerXetaAmount(issuer=address)
+xeta.claim.scanIssuerCreated(issuer=address)
+xeta.claim.scanHolderCreated(holder=address)
+xeta.claim.scanIssuerTokenCreated(issuer=address, token=token)
+xeta.claim.scanHolderTokenCreated(holder=address, token=token)
+xeta.claim.scanIssuerHolder(issuer=address, holder=address)
+xeta.claim.scanIssuerHolderToken(issuer=address, holder=address, token=token)
 ```
 
-## Stats
+## Registry
 
-Coming soon.
+```
+xeta.registry.read(hash=hash)
+xeta.registry.list(hashes=[hash])
+xeta.registry.scanContentCreated(content=string)
+xeta.registry.scanFingerprintCreated(fingerprint=string)
+xeta.registry.scanClusterCreated(cluster=string)
+```
+
+## Search
+
+```
+xeta.search.query(query=string)
+```
+
+## Statistic
+
+```
+xeta.statistic.read(key=key, time=time)
+xeta.statistic.scan(key=key)
+```
+
+## Wallet
+
+```
+xeta.wallet.init(publicKey=hash, privateKey=hash)
+xeta.wallet.connect(account=string, secret=string, unsafe=boolean, create=boolean)
+xeta.credentials.sign(account=string, secret=string, tx=transaction)
+```
 
 # Modules
 
 Modules are wrapper methods that submit transactions to the network endpoint. Fees for methods are fixed and most recent fees can be found on [docs.xetareality.com](https://docs.xetareality.com). 
 
-## Transaction
+
+## Transfer
 
 ```
-# Create a basic transaction
-xeta.transaction.create({'amount': 10, 'to': ADDRESS, 'token': ADDRESS})
-
-# Create a transaction using an existing allowance
-xeta.transaction.create({'amount': 10, 'to': ADDRESS, 'token': ADDRESS, 'from': ADDRESS})
-
-# Create a delegate transaction (fees paid by recipient)
-xeta.transaction.create({'amount': 10, 'to': ADDRESS, 'token': ADDRESS, 'delegate'=True})
-
-# Sponsor an address (for XETA fee-delegation)
-xeta.transaction.sponsor({'amount': 10, 'to': ADDRESS})
-
-# Batch distribute fungible tokens (up to 10 transfers per request)
-xeta.transaction.batch_ft([
-    {'to': ADDRESS, 'amount': 5},
-    {'to': ADDRESS, 'amount': 5}],
-    {'token': ADDRESS, 'amount': 10})
-
-# Batch distribute non-fungible tokens (up to 8 transfers per requests)
-xeta.transaction.batch_nft([
-    {'to': ADDRESS, 'token': ADDRESS},
-    {'to': ADDRESS, 'token': ADDRESS}])
+xeta.transfer.create(to=address, token=token, amount=amount, fromAddress=address)
 ```
 
 ## Token
 
 ```
-# Create a non-fungible token
-xeta.token.create({'name': 'Xeta Punk, 'supply': 1, 'object': URL, icon: URL, meta: ATTRIBUTES})
-
-# Create a fungible token
-xeta.token.create({'name': 'Bitcoin', 'ticker': 'BTC', 'supply': 21000000, icon: URL})
-
-# Batch create non-fungible tokens (up to 40 tokens per request)
-xeta.token.batch([
-    {'name': 'Xeta Punk #1', object: URL, icon: URL},
-    {'name': 'Xeta Punk #2', object: URL, icon: URL}])
-
-# Mint reserve-supply for a fungible token
-xeta.token.mint({'amount': 10}, {'token': ADDRESS})
-
-# Update details for a token (description, links, meta, icon)
-xeta.token.update(
-    {'description': TEXT, links: [LINK, LINK], meta: TEXT, icon: URL},
-    {'token': ADDRESS})
+xeta.token.create(name=string, description=string, links=[string], meta=object, icon=url, owner=address, frozen=boolean, category=string, object=url, mime=string, content=string)
+xeta.token.create(name=string, symbol=string, supply=amount, reserve=amount, description=string, links=[string], meta=object, icon=url)
 ```
 
 ## Pool
 
-For pool creation, it is recommended to use the program-specific methods (which are wrappers around this method). Available pool programs are auction, launch, lock, loot, lottery, royalty, stake, swap, vote.
+For pool creation, it is recommended to use the program-specific methods (which are wrappers around this method). Available pool programs are auction, launch, lock, loot, lottery, royalty, staking, swap, vote.
 
 ```
-# Create a pool
-xeta.pool.create({'program': PROGRAM, 'expires': TIMESTAMP}, {'token': ADDRESS})
+xeta.pool.create(token=token, program=string, expires=timestamp)
+```
+
+## Claim
+```
+xeta.claim.create(owner=address, token=token, tokenAmount=amount, expires=timestamp)
+xeta.claim.update(claim=claim, tokenAmount=amount)
+xeta.claim.transfer(claim=claim, to=address)
+xeta.claim.resolve(claim=claim)
+```
+
+## Account
+
+```
+xeta.account.update(name=string, description=string, links=[string], meta=object, icon=url, category=string)
 ```
 
 ## Allowance
 
 ```
-# Create an allowance
-xeta.allowance.create({'spender': ADDRESS, 'amount': 10}, {'token': ADDRESS})
+xeta.allowance.update(token=token, spender=spender, amount=amount)
+```
 
-# Batch create allowances (up to 100 spenders per request)
-xeta.allowance.batch([
-    {'spender': ADDRESS, 'amount': 10},
-    {'spender': ADDRESS, 'amount': 10}],
-    {'token': ADDRESS})
+## Transaction
+Approx. 10 instructions can be batched into one request. The exact number depends on reads & writes, and sub-calls made by each instruction. It is required that all instructions have the tx=False flag, to be returned as instruction object. Batch instructions are processed atomically, meaning that if one instruction fails, the transaction throws an error and no instruction is processed.
+
+```
+xeta.transaction.submit([
+    xeta.transfer.create(to=address, token=token, amount=amount, tx=False),
+    xeta.transfer.create(to=address, token=token, amount=amount, tx=False),
+    xeta.token.create(name=string, symbol=string, supply=amount),
+    xeta.token.create(name=string),
+    xeta.token.create(name=string),
+])
 ```
 
 # Programs
@@ -245,235 +222,139 @@ Pools are based on programs, which are pre-written smart contracts on Xeta. For 
 
 ## Auction
 
-Creator methods:
 ```
-# Create an auction pool
-auction = xeta.auction.create(
-    {'expires': TIMESTAMP, 'xetaTarget': 10, 'xetaLimit': 100},
-    {'token': ADDRESS})
-
-# Deposit the pool-token to be auctioned (FT or NFT)
-auction.deposit({'amount': 10})
-
-# Close an auction
+# Creator methods:
+auction = xeta.pool.create(program='auction', token=token, expires=timestamp, xetaTarget=amount, xetaLimit=amount)
+auction.deposit(amount=amount)
 auction.close()
-```
 
-Participant methods:
-```
-# Submit a XETA-bid
-auction.transfer({'amount': 5})
-
-# Resolve an auction
+# Participant methods:
+auction.transfer(amount=amount)
 auction.resolve()
-
-# Cancel an auction
 auction.cancel()
 ```
 
 ## Launch
 
-Creator methods:
 ```
-# Create a launch pool
-launch = xeta.launch.create(
-    {'expires': TIMESTAMP, 'xetaTarget': 10, 'xetaLimit': 100},
-    {'token': ADDRESS})
-
-# Deposit the pool-token to be launched
-launch.deposit({'amount': 10})
-
-# Withdraw the pool-token
-launch.withdraw()
-
-# Close a launch pool
+# Creator methods:
+launch = xeta.pool.create(program='launch', token=token, expires=timestamp, xetaTarget=amount, xetaLimit=amount)
+launch.deposit(amount=amount)
+launch.withdraw(claim=claim)
 launch.close()
-```
 
-Participant methods:
-```
-# Resolve a launch (if expired or limit is met)
+# Participant methods:
 launch.resolve()
+launch.transfer(amount=amount)
+launch.swap(amount=amount)
+launch.claim(claim=claim)
+```
 
-# Participate with a XETA transfer
-launch.transfer({'amount': 5})
+## Lending
 
-# Swap directly (if launch pool has a swap-rate)
-launch.swap({'amount': 5})
+```
+# Creator methods:
+lending = xeta.pool.create(program='lending', token=token)
+lending.deposit(amount=amount)
+lending.withdraw(claim=claim)
 
-# Claim after expiry
-launch.claim()
+# Participant methods:
+lending.liquidate(claim=claim)
+lending.transfer(amount=amount, collateralization=number)
+lending.settle(claim=claim)
 ```
 
 ## Lock
 
-Creator methods:
 ```
-# Create a lock pool
-lock = xeta.lock.create({'expires': TIMESTAMP}, {'token': ADDRESS})
-```
+# Creator methods:
+lock = xeta.pool.create(program='lock', token=token, expires=timestamp)
 
-Participant methods:
-```
-# Deposit the pool-token to be locked
-lock.transfer({'amount': 10}, unlocks=TIMESTAMP)
-
-# Deposit the pool-token to be locked (unlockable by someone else)
-lock.transfer({'amount': 10}, unlocks=TIMESTAMP, address=ADDRESS)
-
-# Claim locked tokens after unlock time expires
-lock.claim()
+# Participant methods:
+lock.transfer(amount=amount, unlocks=timestamp, address=address)
+lock.claim(claim=claim)
 ```
 
 ## Loot
 
-Creator methods:
 ```
-# Create a loot pool (returns a random NFT with 50% probability, for the participation amount of 5 token)
-loot = xeta.loot.create(
-    {'probability': 0.5, 'minAmount': 5, 'maxAmount': 5},
-    {'token': ADDRESS})
-
-# Deposit an NFT to the loot pool
-loot.deposit({'token': ADDRESS})
-
-# Withdraw a deposited NFT
-loot.withdraw({'token': ADDRESS})
-
-# Clear a loot pools earnings
+# Creator methods:
+loot = xeta.pool.create(program='loot', token=token, probability=number, minAmount=amount, maxAmount=amount)
+loot.deposit(token=token)
+loot.withdraw(claim=claim)
 loot.clear()
-```
 
-Participant methods:
-```
-# Participate in loot pool
-loot.transfer({'amount': 5})
+# Participant methods:
+loot.transfer(amount=amount)
 ```
 
 ## Lottery
 
-Creator methods:
 ```
-# Create a lottery pool
-lottery = xeta.lottery.create(
-    {'expires': TIMESTAMP, 'claimsLimit': 1000, 'transfersLimit': 10000},
-    {'token': ADDRESS})
-
-# Deposit pool tokens to be promoted
-lottery.deposit({'amount': 1000})
-
-# Withdraw the deposited pool tokens
-lottery.withdraw()
-
-# Close a lottery pool
+# Creator methods:
+lottery = xeta.pool.create(program='lottery', token=token, expires=timestamp, claimsLimit=integer, transfersLimit=integer)
+lottery.deposit(amount=amount)
+lottery.withdraw(claim=claim)
 lottery.close()
-
-# Clear a lottery (if participation is paid)
 lottery.clear()
-```
 
-Participant methods:
-```
-# Participate in the lottery
-lottery.transfer({'amount': 0})
-
-# Claim after pool expiry/closure
-lottery.claim()
+# Participant methods:
+lottery.transfer(amount=amount)
+lottery.claim(claim=claim)
+lottery.resolve()
 ```
 
 ## Royalty
 
-Creator methods:
 ```
-# Create a royalty pool (30% APY)
-royalty = xeta.royalty.create({'rate': 0.3}, {'token': ADDRESS})
-
-# Deposit royalty rewards to the royalty pool
-royalty.deposit({'amount': 1000})
-
-# Withdraw deposited royalty rewards
-royalty.withdraw()
-
-# Close a royalty pool
+# Creator methods:
+royalty = xeta.pool.create(program='royalty', token=token, rate=number)
+royalty.deposit(amount=amount)
+royalty.withdraw(claim=claim)
 royalty.close()
+
+# Participant methods:
+royalty.transfer(token=token)
+royalty.claim(token=token)
 ```
 
-Participant methods:
+## Staking
+
 ```
-# Transfer (make a royalty claim)
-royalty.transfer()
+# Creator methods:
+staking = xeta.pool.create(program='staking', token=token, rate=number, percentage=number, minTime=integer, maxTime=integer, minAmount=amount, maxAmount=amount)
+staking.deposit(amount=amount)
+staking.withdraw(claim=claim)
 
-# Make a royalty claim
-royalty.claim()
-```
-
-## Stake
-
-Creator methods:
-```
-# Create a staking pool (30% APY, 50% bonus, min. 30d lock, max 1y lock, min/max lock amounts)
-stake = xeta.stake.create(
-    {'rate': 0.3, 'percentage': 0.5, 'minTime': 30*86400000, 'maxTime': 365*86400000, 'maxAmount': 1000000},
-    {'token': ADDRESS})
-
-# Deposit stake rewards
-stake.deposit({'amount': 1000})
-
-# Withdraw deposited rewards
-stake.withdraw()
-```
-
-Participate methods:
-```
-# Create a stake
-stake.transfer({'amount': 10}, unlocks=int(time.time()+30*86400000))
-
-# Claim amount and stake rewards
-stake.claim()
+# Participate methods:
+staking.transfer(amount=amount, unlocks=timestamp)
+staking.claim(claim=claim)
 ```
 
 ## Swap
 
 Swap pools are automatically created for all fungible tokens, with the same pool-address as the token-address.
 
-Liquidity provider methods:
 ```
-# Deposit the pool-token to be auctioned (FT or NFT)
-swap.deposit({'amount': 10, 'token': ADDRESS})
+# Liquidity provider methods:
+swap.deposit(tokenAmount=amount, xetaAmount=amount, unlocks=timestamp)
+swap.withdraw(claim=claim, percentage=number)
 
-# Supply liquidity (once pool token and XETA has been deposited)
-swap.supply()
-
-# Withdraw 50% of supplied liqudity
-swap.withdraw(percentage=0.5)
-```
-
-Participant methods:
-```
-# Transfer to swap pool (either pool token or XETA)
-swap.transfer({'amount': 1, 'token': ADDRESS})
+# Participant methods:
+swap.transfer(token=token, amount=amount)
 ```
 
 ## Vote
 
-Creator methods:
 ```
-# Create an vote (with a max. voting amount, and a candidate-resolution mechanism)
-vote = xeta.vote.create(
-    {'expires': TIMESTAMP, 'mechanism': 'candidate', 'maxAmount': 50, 'candidates': [ADDRESS, ADDRESS]},
-    {'token': ADDRESS})
-```
+# Creator methods:
+vote = xeta.pool.create(program='vote', token=token, expires=timestamp, mechanism=string, maxAmount=amount, candidates=[string])
+xeta.vote.oracle(answer=answer)
 
-Participant methods:
-```
-# Submit a XETA-bid
-vote.transfer({'amount': 5})
-
-# Resolve a finished vote
+# Participant methods:
+vote.transfer(amount=amount, answer=string, number=number)
 vote.resolve()
-
-# Claim proceeds (if mechanism is top:N)
-vote.claim()
+vote.claim(claim=claim)
 ```
 
 # Feedback & Contributions
