@@ -1,15 +1,6 @@
-from xeta.modules import instruction, pool
-from xeta.library.config import config
-from xeta.library import models, utils
+from xeta.modules import instruction
+from xeta.library import utils
 
-
-def create(**values):
-    """
-    Create auction pool
-    """
-    models.required_fields(values, ['token', 'expires'])
-    models.valid_formats(values, models.POOL)
-    return pool.create(**{**values, **{'program': 'auction'}})
 
 class Auction():
     """
@@ -21,7 +12,7 @@ class Auction():
         """
         self.pool = pool
 
-    def transfer(self, amount, submit=True):
+    def transfer(self, amount, tx={}):
         """
         Transfer to auction pool
         """
@@ -29,9 +20,9 @@ class Auction():
             'function': 'auction.transfer',
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
-        }, submit)
+        }, tx)
 
-    def deposit(self, unlocks=None, expires=None, submit=True):
+    def deposit(self, unlocks=None, expires=None, tx={}):
         """
         Deposit to auction pool
         """
@@ -40,31 +31,31 @@ class Auction():
             'pool': self.pool['address'],
             'unlocks': unlocks,
             'expires': expires,
-        }, submit)
+        }, tx)
 
-    def resolve(self, submit=True):
+    def resolve(self, tx={}):
         """
         Resolve auction pool
         """
         return instruction.wrap({
             'function': 'auction.resolve',
             'pool': self.pool['address'],
-        }, submit)
+        }, tx)
 
-    def cancel(self, submit=True):
+    def cancel(self, tx={}):
         """
         Cancel auction pool
         """
         return instruction.wrap({
             'function': 'auction.cancel',
             'pool': self.pool['address'],
-        }, submit)
+        }, tx)
 
-    def close(self, submit=True):
+    def close(self, tx={}):
         """
         Close auction pool
         """
         return instruction.wrap({
             'function': 'auction.close',
             'pool': self.pool['address'],
-        }, submit)
+        }, tx)

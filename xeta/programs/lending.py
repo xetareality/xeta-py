@@ -1,16 +1,6 @@
-from xeta.modules import instruction, pool
-from xeta.library.config import config
-from xeta.library import models, utils
-import json
+from xeta.modules import instruction
+from xeta.library import utils
 
-
-def create(**values):
-    """
-    Create lending pool
-    """
-    models.required_fields(values, ['token'])
-    models.valid_formats(values, models.POOL)
-    return pool.create(**{**values, **{'program': 'lending'}})
 
 class Lending():
     """
@@ -22,7 +12,7 @@ class Lending():
         """
         self.pool = pool
 
-    def transfer(self, amount, collateralization=2.5, submit=True):
+    def transfer(self, amount, collateralization=2.5, tx={}):
         """
         Transfer to lending pool
         """
@@ -32,9 +22,9 @@ class Lending():
             'token': self.pool['token'],
             'amount': utils.amount(amount),
             'collateralization': collateralization,
-        }, submit)
+        }, tx)
 
-    def settle(self, claim, submit=True):
+    def settle(self, claim, tx={}):
         """
         Settle claim from lending pool
         """
@@ -42,9 +32,9 @@ class Lending():
             'function': 'lending.settle',
             'pool': self.pool['address'],
             'claim': claim,
-        }, submit)
+        }, tx)
 
-    def liquidate(self, claim, submit=True):
+    def liquidate(self, claim, tx={}):
         """
         Liquidate claim from lending pool
         """
@@ -53,9 +43,9 @@ class Lending():
             'pool': self.pool['address'],
             'token': self.pool['token'],
             'claim': claim,
-        }, submit)
+        }, tx)
 
-    def deposit(self, amount, unlocks=None, expires=None, submit=True):
+    def deposit(self, amount, unlocks=None, expires=None, tx={}):
         """
         Deposit to lending pool
         """
@@ -65,9 +55,9 @@ class Lending():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        }, submit)
+        }, tx)
 
-    def withdraw(self, claim, submit=True):
+    def withdraw(self, claim, tx={}):
         """
         Withdraw from lending pool
         """
@@ -76,4 +66,4 @@ class Lending():
             'pool': self.pool['address'],
             'token': self.pool['token'],
             'claim': claim,
-        }, submit)
+        }, tx)

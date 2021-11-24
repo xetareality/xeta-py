@@ -1,16 +1,6 @@
-from xeta.modules import instruction, pool
-from xeta.library.config import config
-from xeta.library import models, utils
-import json
+from xeta.modules import instruction
+from xeta.library import utils
 
-
-def create(**values):
-    """
-    Create vote pool
-    """
-    models.required_fields(values, ['token'])
-    models.valid_formats(values, models.POOL)
-    return pool.create(**{**values, **{'program': 'vote'}})
 
 class Vote():
     """
@@ -22,11 +12,11 @@ class Vote():
         """
         self.pool = pool
 
-    def transfer(self, amount=0, answer=None, number=None, submit=True):
+    def transfer(self, amount=0, answer=None, number=None, tx={}):
         """
         Transfer to vote pool
         """
-        assert (self.pool.get('candidates') and answer) or (not self.pool.get('candidates') and number), 'validation: incorrect answer'
+        assert (self.pool.get('candidates') and answer) or (not self.pool.get('candidates') and number), 'answer:invalid'
 
         return instruction.wrap({
             'function': 'vote.transfer',
@@ -34,9 +24,9 @@ class Vote():
             'amount': utils.amount(amount),
             'answer': answer,
             'number': number,
-        }, submit)
+        }, tx)
 
-    def claim(self, claim, submit=True):
+    def claim(self, claim, tx={}):
         """
         Claim from vote pool
         """
@@ -44,23 +34,23 @@ class Vote():
             'function': 'vote.claim',
             'pool': self.pool['address'],
             'claim': claim,
-        }, submit)
+        }, tx)
 
-    def resolve(self, submit=True):
+    def resolve(self, tx={}):
         """
         Resolve vote pool
         """
         return instruction.wrap({
             'function': 'vote.resolve',
             'pool': self.pool['address'],
-        }, submit)
+        }, tx)
 
-    def oracle(self, answer, submit=True):
+    def oracle(self, answer, tx={}):
         """
-        Set correct answer
+        Set accepted answer
         """
         return instruction.wrap({
             'function': 'vote.oracle',
             'pool': self.pool['address'],
             'answer': answer,
-        }, submit)
+        }, tx)

@@ -1,7 +1,5 @@
-from xeta.modules import instruction, pool
-from xeta.library.config import config
-from xeta.library import models, utils
-import json
+from xeta.modules import instruction
+from xeta.library import utils
 
 
 class Swap():
@@ -14,7 +12,7 @@ class Swap():
         """
         self.pool = pool
 
-    def transfer(self, token, amount, submit=True):
+    def transfer(self, token, amount, tx={}):
         """
         Transfer to swap pool
         """
@@ -23,9 +21,9 @@ class Swap():
             'pool': self.pool['address'],
             'token': token,
             'amount': utils.amount(amount),
-        }, submit)
+        }, tx)
 
-    def deposit(self, tokenAmount, xetaAmount, unlocks=None, expires=None, submit=True):
+    def deposit(self, tokenAmount, xetaAmount, unlocks=None, expires=None, tx={}):
         """
         Deposit to swap pool
         """
@@ -36,17 +34,17 @@ class Swap():
             'xetaAmount': utils.amount(xetaAmount),
             'unlocks': unlocks,
             'expires': expires,
-        }, submit)
+        }, tx)
 
-    def withdraw(self, claim, percentage=1, submit=True):
+    def withdraw(self, claim, percentage=1, tx={}):
         """
         Withdraw from swap pool
         """
-        assert percentage <= 1, 'input: percentage must between zero and one'
+        assert percentage <= 1, 'percentage:invalid'
 
         return instruction.wrap({
             'function': 'swap.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
             'percentage': percentage,
-        }, submit)
+        }, tx)

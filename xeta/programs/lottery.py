@@ -1,15 +1,6 @@
-from xeta.modules import instruction, pool
-from xeta.library.config import config
-from xeta.library import models, utils
+from xeta.modules import instruction
+from xeta.library import utils
 
-
-def create(**values):
-    """
-    Create lottery pool
-    """
-    models.required_fields(values, ['token', 'expires'])
-    models.valid_formats(values, models.POOL)
-    return pool.create(**{**values, **{'program': 'lottery'}})
 
 class Lottery():
     """
@@ -21,7 +12,7 @@ class Lottery():
         """
         self.pool = pool
 
-    def transfer(self, amount, submit=True):
+    def transfer(self, amount, tx={}):
         """
         Transfer to lottery pool
         """
@@ -30,9 +21,9 @@ class Lottery():
             'pool': self.pool['address'],
             'token': self.pool['token'],
             'amount': utils.amount(amount),
-        }, submit)
+        }, tx)
 
-    def claim(self, claim, submit=True):
+    def claim(self, claim, tx={}):
         """
         Claim from lottery pool
         """
@@ -40,18 +31,18 @@ class Lottery():
             'function': 'lottery.claim',
             'pool': self.pool['address'],
             'claim': claim,
-        }, submit)
+        }, tx)
 
-    def resolve(self, submit=True):
+    def resolve(self, tx={}):
         """
         Resolve NFT lottery pool
         """
         return instruction.wrap({
             'function': 'lottery.resolve',
             'pool': self.pool['address'],
-        }, submit)
+        }, tx)
 
-    def deposit(self, amount=None, unlocks=None, expires=None, submit=True):
+    def deposit(self, amount=None, unlocks=None, expires=None, tx={}):
         """
         Deposit to lottery pool
         """
@@ -61,9 +52,9 @@ class Lottery():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        }, submit)
+        }, tx)
 
-    def withdraw(self, claim, submit=True):
+    def withdraw(self, claim, tx={}):
         """
         Withdraw from lottery pool
         """
@@ -71,22 +62,22 @@ class Lottery():
             'function': 'lottery.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
-        }, submit)
+        }, tx)
 
-    def close(self, submit=True):
+    def close(self, tx={}):
         """
         Close lottery pool
         """
         return instruction.wrap({
             'function': 'lottery.close',
             'pool': self.pool['address'],
-        }, submit)
+        }, tx)
 
-    def clear(self, submit=True):
+    def clear(self, tx={}):
         """
         Clear lottery pool
         """
         return instruction.wrap({
             'function': 'lottery.clear',
             'pool': self.pool['address'],
-        }, submit)
+        }, tx)

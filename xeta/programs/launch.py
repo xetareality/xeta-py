@@ -1,15 +1,6 @@
-from xeta.modules import instruction, pool
-from xeta.library.config import config
-from xeta.library import models, utils
+from xeta.modules import instruction
+from xeta.library import utils
 
-
-def create(**values):
-    """
-    Create launch pool
-    """
-    models.required_fields(values, ['token', 'expires'])
-    models.valid_formats(values, models.POOL)
-    return pool.create(**{**values, **{'program': 'launch'}})
 
 class Launch():
     """
@@ -21,7 +12,7 @@ class Launch():
         """
         self.pool = pool
 
-    def transfer(self, amount, submit=True):
+    def transfer(self, amount, tx={}):
         """
         Transfer to launch pool
         """
@@ -29,9 +20,9 @@ class Launch():
             'function': 'launch.transfer',
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
-        }, submit)
+        }, tx)
 
-    def swap(self, amount, submit=True):
+    def swap(self, amount, tx={}):
         """
         Swap via launch pool
         """
@@ -39,9 +30,9 @@ class Launch():
             'function': 'launch.swap',
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
-        }, submit)
+        }, tx)
 
-    def resolve(self, submit=True):
+    def resolve(self, tx={}):
         """
         Resolve launch pool
         """
@@ -49,9 +40,9 @@ class Launch():
             'function': 'launch.resolve',
             'pool': self.pool['address'],
             'token': self.pool['token'],
-        }, submit)
+        }, tx)
 
-    def claim(self, claim, submit=True):
+    def claim(self, claim, tx={}):
         """
         Claim from launch pool
         """
@@ -59,9 +50,9 @@ class Launch():
             'function': 'launch.claim',
             'pool': self.pool['address'],
             'claim': claim,
-        }, submit)
+        }, tx)
 
-    def deposit(self, amount, unlocks=None, expires=None, submit=True):
+    def deposit(self, amount, unlocks=None, expires=None, tx={}):
         """
         Deposit to launch pool
         """
@@ -71,9 +62,9 @@ class Launch():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        }, submit)
+        }, tx)
 
-    def withdraw(self, claim, submit=True):
+    def withdraw(self, claim, tx={}):
         """
         Withdraw from launch pool
         """
@@ -81,13 +72,13 @@ class Launch():
             'function': 'launch.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
-        }, submit)
+        }, tx)
 
-    def close(self, submit=True):
+    def close(self, tx={}):
         """
         Close launch pool
         """
         return instruction.wrap({
             'function': 'launch.close',
             'pool': self.pool['address'],
-        }, submit)
+        }, tx)

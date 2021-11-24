@@ -1,16 +1,6 @@
-from xeta.modules import instruction, pool
-from xeta.library.config import config
-from xeta.library import models, utils
-import json
+from xeta.modules import instruction
+from xeta.library import utils
 
-
-def create(**values):
-    """
-    Create royalty pool
-    """
-    models.required_fields(values, ['token'])
-    models.valid_formats(values, models.POOL)
-    return pool.create(**{**values, **{'program': 'royalty'}})
 
 class Royalty():
     """
@@ -22,13 +12,13 @@ class Royalty():
         """
         self.pool = pool
 
-    def transfer(self, token, submit=True):
+    def transfer(self, token, tx={}):
         """
         Claim from royalty pool
         """
-        return self.claim(token, submit)
+        return self.claim(token, tx)
 
-    def claim(self, token, submit=True):
+    def claim(self, token, tx={}):
         """
         Claim from royalty pool
         """
@@ -36,9 +26,9 @@ class Royalty():
             'function': 'royalty.claim',
             'pool': self.pool['address'],
             'token': token,
-        }, submit)
+        }, tx)
 
-    def deposit(self, amount, unlocks=None, expires=None, submit=True):
+    def deposit(self, amount, unlocks=None, expires=None, tx={}):
         """
         Deposit to royalty pool
         """
@@ -48,9 +38,9 @@ class Royalty():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        }, submit)
+        }, tx)
 
-    def withdraw(self, claim, submit=True):
+    def withdraw(self, claim, tx={}):
         """
         Withdraw from royalty pool
         """
@@ -58,13 +48,13 @@ class Royalty():
             'function': 'royalty.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
-        }, submit)
+        }, tx)
 
-    def close(self, submit=True):
+    def close(self, tx={}):
         """
         Close royalty pool
         """
         return instruction.wrap({
             'function': 'royalty.close',
             'pool': self.pool['address'],
-        }, submit)
+        }, tx)

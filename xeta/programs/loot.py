@@ -1,15 +1,6 @@
-from xeta.modules import instruction, pool
-from xeta.library.config import config
-from xeta.library import models, utils
+from xeta.modules import instruction
+from xeta.library import utils
 
-
-def create(**values):
-    """
-    Create loot pool
-    """
-    models.required_fields(values, ['token'])
-    models.valid_formats(values, models.POOL)
-    return pool.create(**{**values, **{'program': 'loot'}})
 
 class Loot():
     """
@@ -21,7 +12,7 @@ class Loot():
         """
         self.pool = pool
 
-    def transfer(self, amount, submit=True):
+    def transfer(self, amount, tx={}):
         """
         Transfer to loot pool
         """
@@ -29,9 +20,9 @@ class Loot():
             'function': 'loot.transfer',
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
-        }, submit)
+        }, tx)
 
-    def deposit(self, token, unlocks=None, expires=None, submit=True):
+    def deposit(self, token, unlocks=None, expires=None, tx={}):
         """
         Deposit nft to loot pool
         """
@@ -41,9 +32,9 @@ class Loot():
             'token': token,
             'unlocks': unlocks,
             'expires': expires,
-        }, submit)
+        }, tx)
 
-    def withdraw(self, claim, submit=True):
+    def withdraw(self, claim, tx={}):
         """
         Withdraw nft from loot pool
         """
@@ -51,13 +42,13 @@ class Loot():
             'function': 'loot.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
-        }, submit)
+        }, tx)
 
-    def clear(self, submit=True):
+    def clear(self, tx={}):
         """
         Clear loot pool
         """
         return instruction.wrap({
             'function': 'loot.clear',
             'pool': self.pool['address'],
-        }, submit)
+        }, tx)

@@ -1,17 +1,6 @@
-from xeta.modules import instruction, pool
-from xeta.library.config import config
-from xeta.library import models, utils
-import json
+from xeta.modules import instruction
+from xeta.library import utils
 import time
-
-
-def create(**values):
-    """
-    Create staking pool
-    """
-    models.required_fields(values, ['token'])
-    models.valid_formats(values, models.POOL)
-    return pool.create(**{**values, **{'program': 'staking'}})
 
 class Staking():
     """
@@ -23,11 +12,11 @@ class Staking():
         """
         self.pool = pool
 
-    def transfer(self, amount, unlocks=None, expires=None, submit=True):
+    def transfer(self, amount, unlocks=None, expires=None, tx={}):
         """
         Transfer to staking pool
         """
-        assert unlocks and unlocks > time.time()*1000+24*60*60*1000, 'validation: below minimum time'
+        assert unlocks and unlocks > time.time()*1000+24*60*60*1000, 'invalid:time'
 
         return instruction.wrap({
             'function': 'staking.transfer',
@@ -35,9 +24,9 @@ class Staking():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        }, submit)
+        }, tx)
 
-    def claim(self, claim, submit=True):
+    def claim(self, claim, tx={}):
         """
         Claim from staking pool
         """
@@ -45,9 +34,9 @@ class Staking():
             'function': 'staking.claim',
             'pool': self.pool['address'],
             'claim': claim,
-        }, submit)
+        }, tx)
 
-    def deposit(self, amount, unlocks=None, expires=None, submit=True):
+    def deposit(self, amount, unlocks=None, expires=None, tx={}):
         """
         Deposit to staking pool
         """
@@ -57,9 +46,9 @@ class Staking():
             'amount': utils.amount(amount),
             'unlocks': unlocks,
             'expires': expires,
-        }, submit)
+        }, tx)
 
-    def withdraw(self, claim, submit=True):
+    def withdraw(self, claim, tx={}):
         """
         Withdraw from staking pool
         """
@@ -67,4 +56,4 @@ class Staking():
             'function': 'staking.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
-        }, submit)
+        }, tx)

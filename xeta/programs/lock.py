@@ -1,16 +1,6 @@
-from xeta.modules import instruction, pool
-from xeta.library.config import config
-from xeta.library import models, utils
-import json
+from xeta.modules import instruction
+from xeta.library import utils
 
-
-def create(**values):
-    """
-    Create lock pool
-    """
-    models.required_fields(values, ['token'])
-    models.valid_formats(values, models.POOL)
-    return pool.create(**{**values, **{'program': 'lock'}})
 
 class Lock():
     """
@@ -22,7 +12,7 @@ class Lock():
         """
         self.pool = pool
 
-    def transfer(self, amount, unlocks=None, expires=None, address=None, submit=True):
+    def transfer(self, amount, unlocks=None, expires=None, address=None, tx={}):
         """
         Transfer to lock pool
         """
@@ -33,9 +23,9 @@ class Lock():
             'unlocks': unlocks,
             'expires': expires,
             'address': address,
-        }, submit)
+        }, tx)
 
-    def claim(self, claim, submit=True):
+    def claim(self, claim, tx={}):
         """
         Claim from lock pool
         """
@@ -43,4 +33,4 @@ class Lock():
             'function': 'lock.claim',
             'pool': self.pool['address'],
             'claim': claim,
-        }, submit)
+        }, tx)
