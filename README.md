@@ -16,7 +16,7 @@ pip install xeta
 import xeta
 
 # Generate and init a keypair
-publicKey, privateKey = xeta.wallet.generateKeypair()
+publicKey, privateKey = xeta.crypto.generateKeypair()
 xeta.wallet.init(publicKey, privateKey)
 ```
 
@@ -153,7 +153,7 @@ xeta.statistic.scan(key=key)
 
 ```
 xeta.wallet.init(publicKey=hash, privateKey=hash)
-xeta.wallet.connect(account=string, secret=string, unsafe=boolean, create=boolean)
+xeta.wallet.managed(account=string, secret=string, unsafe=boolean, create=boolean)
 xeta.credentials.sign(account=string, secret=string, tx=transaction)
 ```
 
@@ -210,15 +210,15 @@ Approx. 10 instructions can be batched into one request. The exact number depend
 xeta.transaction.submit([
     xeta.transfer.create(to=address, token=token, amount=amount, tx=False),
     xeta.transfer.create(to=address, token=token, amount=amount, tx=False),
-    xeta.token.create(name=string, symbol=string, supply=amount),
-    xeta.token.create(name=string),
-    xeta.token.create(name=string),
+    xeta.token.create(name=string, symbol=string, supply=amount, tx=False),
+    xeta.token.create(name=string, tx=False),
+    xeta.token.create(name=string, tx=False),
 ])
 ```
 
 # Programs
 
-Pools are based on programs, which are pre-written smart contracts on Xeta. For further details on individual functionalities or requirements check out the [Xeta Reality Docs](https://docs.xetareality.com). To get the pool object from pool-address, use the xeta.pool.get interface method.
+Pools are based on programs, which are pre-written smart contracts on Xeta. For further details on individual functionalities or requirements check out the [Xeta Reality Docs](https://docs.xetareality.com). To get the pool object from pool-address, use the xeta.pool.instance interface method.
 
 ## Auction
 

@@ -4,7 +4,7 @@ from pathlib import Path
 
 setup(**{
     'name': 'xeta',
-    'version': '0.8.2',
+    'version': '0.9.1',
     'description': 'Official Python client for Xeta',
     'long_description': (Path(__file__).parent/'README.md').read_text(),
     'long_description_content_type': 'text/markdown',
