@@ -1,4 +1,35 @@
-from xeta.modules import allowance, token, audit, balance, candle, claim, pool, transaction
-from xeta.programs import auction, launch, lock, loot, lottery, royalty, stake, swap, vote
-from xeta.library import crypto, hashing, models
-from xeta.methods import *
+from xeta.modules import (
+    account,
+    allowance,
+    balance,
+    candle,
+    claim,
+    instruction,
+    pool,
+    registry,
+    resource,
+    search,
+    statistic,
+    token,
+    transaction,
+    transfer,
+    wallet)
+
+from xeta.programs import (
+    auction,
+    launch,
+    lending,
+    lock,
+    loot,
+    lottery,
+    royalty,
+    staking,
+    swap,
+    vote)
+
+from xeta.library import (
+    config,
+    crypto,
+    hashed,
+    models,
+    utils)
