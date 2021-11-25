@@ -13,13 +13,13 @@ def init(publicKey, privateKey=None):
     config['publicKey'] = publicKey
     config['privateKey'] = privateKey
 
-def connect(account, secret, unsafe=None, create=None):
+def managed(account, secret, unsafe=None, create=None):
     """
     Connect to managed wallet
     """
     wallet = utils.request(
         method='POST',
-        url=config['interface']+'/credentials',
+        url=config['interface']+'/wallet',
         json=utils.strip({
             'account': account,
             'secret': secret,
@@ -32,10 +32,10 @@ def connect(account, secret, unsafe=None, create=None):
 
 def sign(account, secret, tx):
     """
-    Sign transaction with managed credentials
+    Sign transaction with managed wallet
     Returns transaction with signature
     """
-    models.valid_formats(tx, models.TRANSACTION)
+    models.validFormats(tx, models.TRANSACTION)
 
     return utils.request(
         method='POST',

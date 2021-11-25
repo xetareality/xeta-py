@@ -1,5 +1,5 @@
 from xeta.modules import resource
-from xeta.library import models, utils, hashed, wallet
+from xeta.library import models, utils, hashed, crypto
 from xeta.library.config import config
 import time
 
@@ -17,7 +17,7 @@ def submit(instructions, tx={}):
     models.validFormats(tx, models.TRANSACTION)
 
     if not tx.get('signature') and not config['privateKey']: return tx
-    if not tx.get('signature'): tx['signature'] = wallet.sign(hashed.transaction(tx), config['privateKey'])
+    if not tx.get('signature'): tx['signature'] = crypto.sign(hashed.transaction(tx), config['privateKey'])
 
     result = utils.request(
         method='POST',

@@ -41,6 +41,7 @@ def instance(address, args={}):
     Return as program instance
     """
     pool = read(address, args)
+    if not pool: return
     instance = getattr(globals()[pool['program']], pool['program'].capitalize())
     return instance(pool)
 
