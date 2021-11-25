@@ -2,6 +2,7 @@ import hashlib
 import base58
 import json 
 
+
 def values(values, base=None):
     """
     JSON encode array of values

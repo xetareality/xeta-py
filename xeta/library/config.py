@@ -5,7 +5,6 @@ config = {
     'secret': None,
     'interface': 'https://interface.xetareality.com',
     'network': 'https://mainnet.xetareality.com',
-    'registry': 'https://registry.xetareality.com',
     'xeta': '11111111111111111111111111111xeta',
     'factory': '11111111111111111111111111factory',
     'xusd': '11111111111111111111111111111xusd',
@@ -15,7 +14,7 @@ config = {
     'burn': '11111111111111111111111111111burn',
 }
 
-def init(network=None, interface=None, registry=None):
+def init(network=None, interface=None):
     """
     Set endpoints
     """
@@ -23,4 +22,3 @@ def init(network=None, interface=None, registry=None):
 
     if network: config['network'] = network
     if interface: config['interface'] = interface
-    if registry: config['registry'] = registry

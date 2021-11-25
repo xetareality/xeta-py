@@ -229,9 +229,11 @@ STATISTIC = {
     'value': ['number'],
 }
 
-LOOKUP = {
-    'token': ['hash'],
-    'hash': ['string'],
+OBJECT = {
+    'hash': ['hash'],
+    'url': ['string'],
+    'mime': ['string'],
+    'content': ['hash'],
     'fingerprint': ['string'],
     'cluster': ['string'],
     'processed': ['timestamp'],

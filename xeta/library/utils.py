@@ -1,5 +1,6 @@
 import requests
 
+
 def strip(obj, min=1):
     """
     Strip None values from object
@@ -25,3 +26,11 @@ def amount(amount):
     if amount is None: return
     amount = str(round(float(amount), 8))
     return amount if amount[-2:] != '.0' else amount[:-2]
+
+def output(transaction, instruction=0, index=0):
+    """
+    Returns the resource at instruction i at index j
+    """
+    if len(transaction['outputs']) <= instruction: raise Exception('instruction:length')
+    if len(transaction['outputs'][instruction]) <= index: raise Exception('index:length')
+    return transaction['outputs'][instruction][index].split(':')[1]
