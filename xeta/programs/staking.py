@@ -2,6 +2,7 @@ from xeta.modules import instruction
 from xeta.library import utils
 import time
 
+
 class Staking():
     """
     Staking pool class
