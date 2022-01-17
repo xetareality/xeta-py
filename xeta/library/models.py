@@ -9,14 +9,14 @@ def requiredFields(obj, fields=[]):
     """
     if not fields: return
     for field in fields:
-        assert obj.get(field) is not None, 'input: '+field+' is required'
+        assert obj.get(field) is not None, field+':required'
 
 def exclusiveFields(obj, fields=[]):
     """
     Validates that obj has fields only from specified list
     """
     for k in obj.keys():
-        assert k in fields, 'input: attribute '+k+' is not allowed'
+        assert k in fields, k+':invalid'
 
 def filterFields(obj, fields=[]):
     """
@@ -38,8 +38,8 @@ def validFormats(obj, model):
         assert k in obj.keys(), k+':invalid'
 
         t = model[k][0]
-        if (t == 'string' and type(v) is str and len(v) <= 256): continue
-        elif (t == 'strings' and type(v) is list and len(v) and len(v) <= 100 and len(v) == len(set(v)) and all([type(w) is str and len(w) <= 256 for w in v])): continue
+        if (t == 'string' and type(v) is str and len(v) > 0 and len(v) <= 256): continue
+        elif (t == 'strings' and type(v) is list and len(v) and len(v) <= 100 and len(v) == len(set(v)) and all([type(w) is str and len(v) > 0 and len(w) <= 256 for w in v])): continue
         elif (t == 'number' and type(v) in [int, float] and v >= 0 and v <= 1e15 and v == round(v, 8)): continue
         elif (t == 'numbers' and type(v) is list and len(v) and len(v) <= 100 and len(v) == len(set(v)) and all([type(w) in [int, float] and w >= 0 and w <= 1e15 and w == round(w, 8) for w in v])): continue
         elif (t == 'hash' and type(v) is str and len(v) >= 32 and len(v) <= 44): continue
@@ -111,16 +111,17 @@ TOKEN = {
     'description': ['string'],
     'links': ['strings'],
     'meta': ['object'],
-    'icon': ['string'],
+    'preview': ['string'],
 
     'symbol': ['string'],
     'supply': ['amount'],
     'reserve': ['amount'],
+    'whole': ['boolean'],
 
     'owner': ['hash'],
     'object': ['string'],
     'mime': ['string'],
-    'content': ['hash'],
+    'content': ['string'],
     'frozen': ['boolean'],
     'category': ['string'],
     'ownerCategory': ['index'],
@@ -165,13 +166,15 @@ POOL = {
     'created': ['timestamp'],
     'origin': ['hash'],
     'tokenProgram': ['index'],
+    'creatorProgram': ['index'],
+    'activeProgram': ['string'],
     
     'name': ['string'],
+    'description': ['string'],
     'mechanism': ['string'],
     'candidates': ['strings'],
     'rate': ['number'],
     'percentage': ['number'],
-    'probability': ['number'],
     'answers': ['strings'],
     'meta': ['object'],
 
@@ -194,7 +197,7 @@ POOL = {
     'transfersCount': ['integer'],
     'claimsCount': ['integer'],
     'closed': ['boolean'],
-    'leader': ['hash'],
+    'number': ['number'],
 }
 
 WALLET = {

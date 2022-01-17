@@ -24,8 +24,8 @@ def amount(amount):
     Strip .0 if amount represents an integer
     """
     if amount is None: return
-    amount = str(round(float(amount), 8))
-    return amount if amount[-2:] != '.0' else amount[:-2]
+    amount = round(float(amount), 8)
+    return str(round(amount)) if round(amount) == amount else str(amount)
 
 def output(transaction, instruction=0, index=0):
     """
@@ -34,3 +34,22 @@ def output(transaction, instruction=0, index=0):
     if len(transaction['outputs']) <= instruction: raise Exception('instruction:length')
     if len(transaction['outputs'][instruction]) <= index: raise Exception('index:length')
     return transaction['outputs'][instruction][index].split(':')[1]
+
+def key(resource):
+    """
+    Returns key name based on resource
+    """
+    return {
+        'token': 'address',
+        'pool': 'address',
+        'address': 'address',
+        'allowance': 'hash',
+        'balance': 'hash',
+        'claim': 'hash',
+        'wallet': 'hash',
+        'transaction': 'hash',
+        'transfer': 'hash',
+        'object': 'hash',
+        'candle': 'key',
+        'statistic': 'key',
+    }[resource]
