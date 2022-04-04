@@ -17,6 +17,8 @@ def read(type, key, sort=None, sortValue=None, fields=None, preview=None):
             'sort': sort,
             'sortValue': sortValue,
             'preview': preview,
+            'dev': config['dev'],
+            'identity': config['identity'],
         }))
 
 def list(type, keys, sort=None, sortValues=None, fields=None, preview=None):
@@ -34,9 +36,11 @@ def list(type, keys, sort=None, sortValues=None, fields=None, preview=None):
             'sort': sort,
             'sortValues': sortValues,
             'preview': preview,
+            'dev': config['dev'],
+            'identity': config['identity'],
         }))
 
-def scan(type, index, indexValue, sort=None, sortValue=None, keyValue=None, operator=None, asc=False, limit=None, preview=None):
+def scan(type, index, indexValue, sort=None, sortValue=None, keyValue=None, operator=None, asc=False, limit=None, preview=None, extend=None):
     """
     Scan resources by index
     Candles and statistics support scanning without index (by key, sorted by time)
@@ -60,4 +64,7 @@ def scan(type, index, indexValue, sort=None, sortValue=None, keyValue=None, oper
             'asc': asc,
             'limit': limit,
             'preview': preview,
+            'extend': extend,
+            'dev': config['dev'],
+            'identity': config['identity'],
         }))

@@ -19,7 +19,7 @@ def managed(account, secret, unsafe=None, create=None):
     """
     wallet = utils.request(
         method='POST',
-        url=config['interface']+'/wallet',
+        url=config['interface']+'/wallet'+('?dev=1' if config['dev'] else ''),
         json=utils.strip({
             'account': account,
             'secret': secret,
@@ -39,7 +39,7 @@ def sign(account, secret, tx):
 
     return utils.request(
         method='POST',
-        url=config['interface']+'/sign',
+        url=config['interface']+'/sign'+('?dev=1' if config['dev'] else ''),
         json=utils.strip({
             'account': account,
             'secret': secret,

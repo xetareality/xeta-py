@@ -13,7 +13,7 @@ def submit(instructions, tx={}):
         'sender': config['publicKey'],
         'nonce': int(time.time())}, **tx})
 
-    models.exclusiveFields(tx, ['hash', 'signature', 'sender', 'instructions', 'nonce', 'sponsored'])
+    models.exclusiveFields(tx, ['hash', 'signature', 'sender', 'instructions', 'nonce'])
     models.validFormats(tx, models.TRANSACTION)
 
     if not tx.get('signature') and not config['privateKey']: return tx
@@ -21,7 +21,7 @@ def submit(instructions, tx={}):
 
     result = utils.request(
         method='POST',
-        url=config['network']+'/transaction',
+        url=config['network']+('?dev=1' if config['dev'] else ''),
         json=tx)
 
     if result.get('error'): raise Exception(result['error'])

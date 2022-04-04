@@ -3,7 +3,7 @@ from xeta.library import models, utils, hashed
 from xeta.library.config import config
 
 
-def create(to, token, amount, fromAddress=None, message=None, tx={}):
+def create(to, token, amount=None, fromAddress=None, message=None, tx={}):
     """
     Create transfer
     """

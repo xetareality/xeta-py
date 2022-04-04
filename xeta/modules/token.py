@@ -3,38 +3,30 @@ from xeta.library import models, utils, hashed
 from xeta.library.config import config
 
 
-def create(name, symbol=None, supply=None, reserve=None, description=None, links=None, meta=None, icon=None, owner=None, frozen=None, category=None, object=None, mime=None, content=None, tx={}):
+def create(name, symbol=None, supply=None, reserve=None, whole=None, description=None, links=None, meta=None, preview=None, owner=None, frozen=None, category=None, object=None, content=None, mime=None, tx={}):
     """
     Create token
     """
-    token = utils.strip({
+    return instruction.wrap({
         'function': 'token.create',
         'name': name,
         'symbol': symbol,
         'supply': utils.amount(supply),
         'reserve': utils.amount(reserve),
+        'whole': whole,
         'description': description,
         'links': links,
         'meta': meta,
-        'icon': icon,
+        'preview': preview,
         'owner': owner,
         'frozen': frozen,
         'category': category,
         'object': object,
-        'mime': mime,
         'content': content,
-    })
+        'mime': mime,
+    }, tx)
 
-    if supply:
-        models.requiredFields(token, ['name', 'symbol', 'supply'])
-        models.exclusiveFields(token, ['function', 'name', 'description', 'links', 'meta', 'icon', 'symbol', 'supply', 'reserve'])
-    else:
-        models.requiredFields(token, ['name'])
-        models.exclusiveFields(token, ['function', 'name', 'description', 'links', 'meta', 'icon', 'owner', 'frozen', 'category', 'object', 'mime', 'content'])
-
-    return instruction.wrap(token, tx)
-
-def update(token, name=None, description=None, links=None, meta=None, icon=None, frozen=None, category=None, mime=None, tx={}):
+def update(token, name=None, description=None, links=None, meta=None, preview=None, frozen=None, category=None, mime=None, tx={}):
     """
     Update specified values of an token
     """
@@ -45,7 +37,7 @@ def update(token, name=None, description=None, links=None, meta=None, icon=None,
         'description': description,
         'links': links,
         'meta': meta,
-        'icon': icon,
+        'preview': preview,
         'frozen': frozen,
         'category': category,
         'mime': mime,
@@ -59,16 +51,6 @@ def mint(token, amount, tx={}):
         'function': 'token.mint',
         'token': token,
         'amount': utils.amount(amount),
-    }, tx)
-
-def transfer(token, to, tx={}):
-    """
-    Transfer token
-    """
-    return instruction.wrap({
-        'function': 'token.transfer',
-        'token': token,
-        'to': to,
     }, tx)
 
 def read(address, args={}):

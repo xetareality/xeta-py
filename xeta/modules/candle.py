@@ -8,7 +8,7 @@ def read(interval, token, time, args={}):
     """
     Read candle by key (interval:token) and time
     """
-    if time is None: time = str(int(tm.time()) - int(tm.time()) % (60*60*24))
+    if time is None: time = round(time.time() - time.time() % (60*60*24))
 
     return resource.read(**{**{
         'type': 'candle',
@@ -34,7 +34,7 @@ def scanIntervalTimeTurnover(interval, time, turnover=None, key=None, args={}):
     """
     Scan candles by interval and time, sort by turnover
     """
-    if time is None: time = str(int(tm.time()) - int(tm.time()) % (60*60*24))
+    if time is None: time = round(time.time() - time.time() % (60*60*24))
 
     return resource.scan(**{**{
         'type': 'candle',
@@ -49,7 +49,7 @@ def scanIntervalTimeChange(interval, time, change=None, key=None, args={}):
     """
     Scan candles by interval and time, sort by change
     """
-    if time is None: time = str(int(tm.time()) - int(tm.time()) % (60*60*24))
+    if time is None: time = round(time.time() - time.time() % (60*60*24))
 
     return resource.scan(**{**{
         'type': 'candle',

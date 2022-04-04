@@ -11,4 +11,8 @@ def query(query):
     return utils.request(
         method='GET',
         url=config['interface']+'/search',
-        params={'query': query})
+        params={
+            'query': query,
+            'dev': config['dev'],
+            'identity': config['identity'],
+        })
