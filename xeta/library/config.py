@@ -4,6 +4,7 @@ config = {
     'account': None,
     'secret': None,
     'dev': None,
+    'identity': None,
     'interface': 'https://interface.xetareality.com',
     'network': 'https://network.xetareality.com',
     'xeta': '11111111111111111111111111111xeta',

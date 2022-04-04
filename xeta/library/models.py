@@ -171,7 +171,7 @@ POOL = {
     
     'name': ['string'],
     'description': ['string'],
-    'mechanism': ['string'],
+    'type': ['string'],
     'candidates': ['strings'],
     'rate': ['number'],
     'percentage': ['number'],

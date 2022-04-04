@@ -1,6 +1,8 @@
 from xeta.library.config import config
 import hashlib
 import ed25519
+import scrypt
+import re
 
 B58 = b'123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
@@ -80,3 +82,18 @@ def verify(message, signature, public):
     try: verifying_key.verify(b58decode(signature), b58decode(message))
     except: return False
     return True
+
+def brainwallet(account, secret):
+    """
+    Scrypt implementation to generate brain wallet
+    Uses account value as salt combined with secret password
+    """
+    if len(account) < 6 or len(account) > 80 or not re.match(r'^[a-zA-Z0-9-+@_\.]*$', account): raise Exception('account:format')
+    if len(secret) < 6 or len(secret) > 80 or not re.match(r'^[a-zA-Z0-9-+@_\.]*$', secret): raise Exception('secret:format')
+
+    bytes = scrypt.hash(
+        password=secret,
+        salt=account,
+        N=16384, r=8, p=1, buflen=32)
+
+    return b58encode(bytes)
