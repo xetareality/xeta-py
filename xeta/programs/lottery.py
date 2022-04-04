@@ -12,15 +12,13 @@ class Lottery():
         """
         self.pool = pool
 
-    def transfer(self, amount, tx={}):
+    def transfer(self, tx={}):
         """
         Transfer to lottery pool
         """
         return instruction.wrap({
             'function': 'lottery.transfer',
             'pool': self.pool['address'],
-            'token': self.pool['token'],
-            'amount': utils.amount(amount),
         }, tx)
 
     def claim(self, claim, tx={}):
@@ -42,7 +40,7 @@ class Lottery():
             'pool': self.pool['address'],
         }, tx)
 
-    def deposit(self, amount=None, unlocks=None, expires=None, tx={}):
+    def deposit(self, amount=None, unlocks=None, tx={}):
         """
         Deposit to lottery pool
         """
@@ -51,7 +49,6 @@ class Lottery():
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
             'unlocks': unlocks,
-            'expires': expires,
         }, tx)
 
     def withdraw(self, claim, tx={}):

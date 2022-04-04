@@ -13,7 +13,7 @@ class Staking():
         """
         self.pool = pool
 
-    def transfer(self, amount, unlocks=None, expires=None, tx={}):
+    def transfer(self, amount, unlocks=None, tx={}):
         """
         Transfer to staking pool
         """
@@ -24,7 +24,6 @@ class Staking():
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
             'unlocks': unlocks,
-            'expires': expires,
         }, tx)
 
     def claim(self, claim, tx={}):
@@ -37,7 +36,7 @@ class Staking():
             'claim': claim,
         }, tx)
 
-    def deposit(self, amount, unlocks=None, expires=None, tx={}):
+    def deposit(self, amount, unlocks=None, tx={}):
         """
         Deposit to staking pool
         """
@@ -46,10 +45,9 @@ class Staking():
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
             'unlocks': unlocks,
-            'expires': expires,
         }, tx)
 
-    def withdraw(self, claim, tx={}):
+    def withdraw(self, claim, percentage=1, tx={}):
         """
         Withdraw from staking pool
         """
@@ -57,4 +55,5 @@ class Staking():
             'function': 'staking.withdraw',
             'pool': self.pool['address'],
             'claim': claim,
+            'percentage': percentage,
         }, tx)

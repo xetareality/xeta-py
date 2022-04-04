@@ -22,7 +22,7 @@ class Auction():
             'amount': utils.amount(amount),
         }, tx)
 
-    def deposit(self, unlocks=None, expires=None, tx={}):
+    def deposit(self, unlocks=None, tx={}):
         """
         Deposit to auction pool
         """
@@ -30,7 +30,6 @@ class Auction():
             'function': 'auction.deposit',
             'pool': self.pool['address'],
             'unlocks': unlocks,
-            'expires': expires,
         }, tx)
 
     def resolve(self, tx={}):

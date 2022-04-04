@@ -28,7 +28,7 @@ class Royalty():
             'token': token,
         }, tx)
 
-    def deposit(self, amount, unlocks=None, expires=None, tx={}):
+    def deposit(self, amount, unlocks=None, tx={}):
         """
         Deposit to royalty pool
         """
@@ -37,7 +37,6 @@ class Royalty():
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
             'unlocks': unlocks,
-            'expires': expires,
         }, tx)
 
     def withdraw(self, claim, tx={}):

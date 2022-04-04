@@ -12,7 +12,7 @@ class Lending():
         """
         self.pool = pool
 
-    def transfer(self, amount, collateralization=2.5, tx={}):
+    def transfer(self, amount, collateralization, tx={}):
         """
         Transfer to lending pool
         """
@@ -45,7 +45,7 @@ class Lending():
             'claim': claim,
         }, tx)
 
-    def deposit(self, amount, unlocks=None, expires=None, tx={}):
+    def deposit(self, amount, unlocks=None, tx={}):
         """
         Deposit to lending pool
         """
@@ -54,10 +54,9 @@ class Lending():
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
             'unlocks': unlocks,
-            'expires': expires,
         }, tx)
 
-    def withdraw(self, claim, tx={}):
+    def withdraw(self, claim, percentage=1, tx={}):
         """
         Withdraw from lending pool
         """
@@ -66,4 +65,5 @@ class Lending():
             'pool': self.pool['address'],
             'token': self.pool['token'],
             'claim': claim,
+            'percentage': percentage,
         }, tx)

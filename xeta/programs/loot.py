@@ -12,17 +12,16 @@ class Loot():
         """
         self.pool = pool
 
-    def transfer(self, amount, tx={}):
+    def transfer(self, tx={}):
         """
         Transfer to loot pool
         """
         return instruction.wrap({
             'function': 'loot.transfer',
             'pool': self.pool['address'],
-            'amount': utils.amount(amount),
         }, tx)
 
-    def deposit(self, token, unlocks=None, expires=None, tx={}):
+    def deposit(self, token, unlocks=None, tx={}):
         """
         Deposit nft to loot pool
         """
@@ -31,7 +30,6 @@ class Loot():
             'pool': self.pool['address'],
             'token': token,
             'unlocks': unlocks,
-            'expires': expires,
         }, tx)
 
     def withdraw(self, claim, tx={}):

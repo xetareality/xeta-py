@@ -22,16 +22,6 @@ class Launch():
             'amount': utils.amount(amount),
         }, tx)
 
-    def swap(self, amount, tx={}):
-        """
-        Swap via launch pool
-        """
-        return instruction.wrap({
-            'function': 'launch.swap',
-            'pool': self.pool['address'],
-            'amount': utils.amount(amount),
-        }, tx)
-
     def resolve(self, tx={}):
         """
         Resolve launch pool
@@ -52,7 +42,7 @@ class Launch():
             'claim': claim,
         }, tx)
 
-    def deposit(self, amount, unlocks=None, expires=None, tx={}):
+    def deposit(self, amount, unlocks=None, tx={}):
         """
         Deposit to launch pool
         """
@@ -61,7 +51,6 @@ class Launch():
             'pool': self.pool['address'],
             'amount': utils.amount(amount),
             'unlocks': unlocks,
-            'expires': expires,
         }, tx)
 
     def withdraw(self, claim, tx={}):

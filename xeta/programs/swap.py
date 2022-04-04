@@ -23,7 +23,7 @@ class Swap():
             'amount': utils.amount(amount),
         }, tx)
 
-    def deposit(self, tokenAmount, xetaAmount, unlocks=None, expires=None, tx={}):
+    def deposit(self, tokenAmount, xetaAmount, unlocks=None, tx={}):
         """
         Deposit to swap pool
         """
@@ -33,7 +33,6 @@ class Swap():
             'tokenAmount': utils.amount(tokenAmount),
             'xetaAmount': utils.amount(xetaAmount),
             'unlocks': unlocks,
-            'expires': expires,
         }, tx)
 
     def withdraw(self, claim, percentage=1, tx={}):
